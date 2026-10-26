@@ -123,7 +123,10 @@ export function PostCard({ post, liked, saved }: { post: FeedPost; liked: boolea
   async function remove() {
     if (!confirm("Excluir esta publicação?")) return;
     const { error } = await supabase.from("posts").delete().eq("id", post.id);
-    if (error) return toast.error("Não foi possível excluir");
+    if (error) {
+      toast.error("Não foi possível excluir");
+      return;
+    }
     toast.success("Publicação excluída");
     qc.invalidateQueries({ queryKey: ["feed"] });
   }
