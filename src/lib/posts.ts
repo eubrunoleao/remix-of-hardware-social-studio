@@ -85,7 +85,7 @@ export function useFeed(filter: FeedFilter) {
         likeCount: p.post_likes?.[0]?.count ?? 0,
         commentCount: p.comments?.[0]?.count ?? 0,
       }));
-      return { posts, next: posts.length === PAGE_SIZE ? posts[posts.length - 1].created_at : null };
+      return { posts, next: posts.length === PAGE_SIZE ? (posts[posts.length - 1]?.created_at ?? null) : null };
     },
     getNextPageParam: (last) => last.next,
   });

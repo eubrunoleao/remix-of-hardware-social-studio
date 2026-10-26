@@ -55,8 +55,8 @@ export function PostComposer() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (busy) return;
-    if (!body.trim()) return toast.error("Escreva algo antes de publicar");
-    if (isReview && !rating) return toast.error("Dê uma nota de 1 a 5 para a avaliação");
+    if (!body.trim()) { toast.error("Escreva algo antes de publicar"); return; }
+    if (isReview && !rating) { toast.error("Dê uma nota de 1 a 5 para a avaliação"); return; }
     setBusy(true);
     const pending = tagInput.trim() ? [...tags, ...parseHashtags(tagInput)].slice(0, MAX_HASHTAGS) : tags;
     const { error } = await supabase.rpc("create_post", {
@@ -69,7 +69,7 @@ export function PostComposer() {
       _client_key: clientKey.current,
     });
     setBusy(false);
-    if (error) return toast.error(error.message || "Não foi possível publicar. Tente novamente.");
+    if (error) { toast.error(error.message || "Não foi possível publicar. Tente novamente."); return; }
     toast.success("Publicado!");
     clientKey.current = crypto.randomUUID();
     setBody("");
