@@ -14,13 +14,387 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          sort: number
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          sort?: number
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          sort?: number
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hashtags: {
+        Row: {
+          id: string
+          label: string
+          tag: string
+        }
+        Insert: {
+          id?: string
+          label: string
+          tag: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          tag?: string
+        }
+        Relationships: []
+      }
+      manufacturers: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      post_hashtags: {
+        Row: {
+          hashtag_id: string
+          post_id: string
+        }
+        Insert: {
+          hashtag_id: string
+          post_id: string
+        }
+        Update: {
+          hashtag_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_hashtags_hashtag_id_fkey"
+            columns: ["hashtag_id"]
+            isOneToOne: false
+            referencedRelation: "hashtags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_hashtags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_products: {
+        Row: {
+          post_id: string
+          product_id: string
+        }
+        Insert: {
+          post_id: string
+          product_id: string
+        }
+        Update: {
+          post_id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_products_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_saves: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_saves_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          body: string
+          category_id: string | null
+          client_key: string
+          created_at: string
+          id: string
+          is_review: boolean
+          rating: number | null
+        }
+        Insert: {
+          author_id: string
+          body: string
+          category_id?: string | null
+          client_key: string
+          created_at?: string
+          id?: string
+          is_review?: boolean
+          rating?: number | null
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          category_id?: string | null
+          client_key?: string
+          created_at?: string
+          id?: string
+          is_review?: boolean
+          rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          is_demo: boolean
+          manufacturer_id: string
+          name: string
+          slug: string
+          specs: Json
+          specs_verified: boolean
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          is_demo?: boolean
+          manufacturer_id: string
+          name: string
+          slug: string
+          specs?: Json
+          specs_verified?: boolean
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          is_demo?: boolean
+          manufacturer_id?: string
+          name?: string
+          slug?: string
+          specs?: Json
+          specs_verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          bio: string | null
+          created_at: string
+          display_name: string
+          id: string
+          username: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          display_name: string
+          id: string
+          username: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      user_devices: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_devices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_post: {
+        Args: {
+          _body: string
+          _category_id: string
+          _client_key: string
+          _is_review: boolean
+          _product_ids: string[]
+          _rating: number
+          _tags: string[]
+        }
+        Returns: string
+      }
+      normalize_hashtag: { Args: { raw: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
