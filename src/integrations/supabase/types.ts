@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocks_blocked_id_fkey"
+            columns: ["blocked_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           id: string
@@ -34,6 +67,74 @@ export type Database = {
           sort?: number
         }
         Relationships: []
+      }
+      channel_follows: {
+        Row: {
+          channel_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_follows_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_follows_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channels: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channels_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comments: {
         Row: {
@@ -74,6 +175,98 @@ export type Database = {
           },
         ]
       }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          accepted: boolean
+          created_at: string
+          id: string
+          requester_id: string
+        }
+        Insert: {
+          accepted?: boolean
+          created_at?: string
+          id?: string
+          requester_id: string
+        }
+        Update: {
+          accepted?: boolean
+          created_at?: string
+          id?: string
+          requester_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follows: {
+        Row: {
+          created_at: string
+          followee_id: string
+          follower_id: string
+        }
+        Insert: {
+          created_at?: string
+          followee_id: string
+          follower_id: string
+        }
+        Update: {
+          created_at?: string
+          followee_id?: string
+          follower_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_followee_id_fkey"
+            columns: ["followee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hashtags: {
         Row: {
           id: string
@@ -109,6 +302,78 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mutes: {
+        Row: {
+          created_at: string
+          muted_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          muted_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          muted_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mutes_muted_id_fkey"
+            columns: ["muted_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mutes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       post_hashtags: {
         Row: {
@@ -227,6 +492,7 @@ export type Database = {
           author_id: string
           body: string
           category_id: string | null
+          channel_id: string | null
           client_key: string
           created_at: string
           id: string
@@ -237,6 +503,7 @@ export type Database = {
           author_id: string
           body: string
           category_id?: string | null
+          channel_id?: string | null
           client_key: string
           created_at?: string
           id?: string
@@ -247,6 +514,7 @@ export type Database = {
           author_id?: string
           body?: string
           category_id?: string | null
+          channel_id?: string | null
           client_key?: string
           created_at?: string
           id?: string
@@ -266,6 +534,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
             referencedColumns: ["id"]
           },
         ]
@@ -382,19 +657,50 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_post: {
-        Args: {
-          _body: string
-          _category_id: string
-          _client_key: string
-          _is_review: boolean
-          _product_ids: string[]
-          _rating: number
-          _tags: string[]
-        }
+      create_channel: {
+        Args: { _description: string; _name: string; _slug: string }
         Returns: string
       }
+      create_conversation: { Args: { _other_user: string }; Returns: string }
+      create_post:
+        | {
+            Args: {
+              _body: string
+              _category_id: string
+              _client_key: string
+              _is_review: boolean
+              _product_ids: string[]
+              _rating: number
+              _tags: string[]
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _body: string
+              _category_id: string
+              _channel_id?: string
+              _client_key: string
+              _is_review: boolean
+              _product_ids: string[]
+              _rating: number
+              _tags: string[]
+            }
+            Returns: string
+          }
+      is_conversation_member: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
       normalize_hashtag: { Args: { raw: string }; Returns: string }
+      respond_conversation: {
+        Args: { _accept: boolean; _conversation_id: string }
+        Returns: undefined
+      }
+      send_message: {
+        Args: { _body: string; _conversation_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
