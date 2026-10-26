@@ -11,10 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CanaisRouteImport } from './routes/canais'
 import { Route as EquipamentosRouteImport } from './routes/equipamentos'
 import { Route as ExplorarRouteImport } from './routes/explorar'
+import { Route as MensagensRouteImport } from './routes/mensagens'
 import { Route as SalvosRouteImport } from './routes/salvos'
+import { Route as CanaisSlugRouteImport } from './routes/canais.$slug'
 import { Route as EquipamentosSlugRouteImport } from './routes/equipamentos.$slug'
+import { Route as MensagensIdRouteImport } from './routes/mensagens.$id'
 import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as TagTagRouteImport } from './routes/tag.$tag'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -29,6 +33,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CanaisRoute = CanaisRouteImport.update({
+  id: '/canais',
+  path: '/canais',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EquipamentosRoute = EquipamentosRouteImport.update({
   id: '/equipamentos',
   path: '/equipamentos',
@@ -39,15 +48,30 @@ const ExplorarRoute = ExplorarRouteImport.update({
   path: '/explorar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MensagensRoute = MensagensRouteImport.update({
+  id: '/mensagens',
+  path: '/mensagens',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SalvosRoute = SalvosRouteImport.update({
   id: '/salvos',
   path: '/salvos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CanaisSlugRoute = CanaisSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CanaisRoute,
+} as any)
 const EquipamentosSlugRoute = EquipamentosSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => EquipamentosRoute,
+} as any)
+const MensagensIdRoute = MensagensIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MensagensRoute,
 } as any)
 const PostIdRoute = PostIdRouteImport.update({
   id: '/post/$id',
@@ -68,10 +92,14 @@ const UUsernameRoute = UUsernameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/canais': typeof CanaisRouteWithChildren
   '/equipamentos': typeof EquipamentosRouteWithChildren
   '/explorar': typeof ExplorarRoute
+  '/mensagens': typeof MensagensRouteWithChildren
   '/salvos': typeof SalvosRoute
+  '/canais/$slug': typeof CanaisSlugRoute
   '/equipamentos/$slug': typeof EquipamentosSlugRoute
+  '/mensagens/$id': typeof MensagensIdRoute
   '/post/$id': typeof PostIdRoute
   '/tag/$tag': typeof TagTagRoute
   '/u/$username': typeof UUsernameRoute
@@ -79,10 +107,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/canais': typeof CanaisRouteWithChildren
   '/equipamentos': typeof EquipamentosRouteWithChildren
   '/explorar': typeof ExplorarRoute
+  '/mensagens': typeof MensagensRouteWithChildren
   '/salvos': typeof SalvosRoute
+  '/canais/$slug': typeof CanaisSlugRoute
   '/equipamentos/$slug': typeof EquipamentosSlugRoute
+  '/mensagens/$id': typeof MensagensIdRoute
   '/post/$id': typeof PostIdRoute
   '/tag/$tag': typeof TagTagRoute
   '/u/$username': typeof UUsernameRoute
@@ -91,10 +123,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/canais': typeof CanaisRouteWithChildren
   '/equipamentos': typeof EquipamentosRouteWithChildren
   '/explorar': typeof ExplorarRoute
+  '/mensagens': typeof MensagensRouteWithChildren
   '/salvos': typeof SalvosRoute
+  '/canais/$slug': typeof CanaisSlugRoute
   '/equipamentos/$slug': typeof EquipamentosSlugRoute
+  '/mensagens/$id': typeof MensagensIdRoute
   '/post/$id': typeof PostIdRoute
   '/tag/$tag': typeof TagTagRoute
   '/u/$username': typeof UUsernameRoute
@@ -104,10 +140,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/canais'
     | '/equipamentos'
     | '/explorar'
+    | '/mensagens'
     | '/salvos'
+    | '/canais/$slug'
     | '/equipamentos/$slug'
+    | '/mensagens/$id'
     | '/post/$id'
     | '/tag/$tag'
     | '/u/$username'
@@ -115,10 +155,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/canais'
     | '/equipamentos'
     | '/explorar'
+    | '/mensagens'
     | '/salvos'
+    | '/canais/$slug'
     | '/equipamentos/$slug'
+    | '/mensagens/$id'
     | '/post/$id'
     | '/tag/$tag'
     | '/u/$username'
@@ -126,10 +170,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/canais'
     | '/equipamentos'
     | '/explorar'
+    | '/mensagens'
     | '/salvos'
+    | '/canais/$slug'
     | '/equipamentos/$slug'
+    | '/mensagens/$id'
     | '/post/$id'
     | '/tag/$tag'
     | '/u/$username'
@@ -138,8 +186,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  CanaisRoute: typeof CanaisRouteWithChildren
   EquipamentosRoute: typeof EquipamentosRouteWithChildren
   ExplorarRoute: typeof ExplorarRoute
+  MensagensRoute: typeof MensagensRouteWithChildren
   SalvosRoute: typeof SalvosRoute
   PostIdRoute: typeof PostIdRoute
   TagTagRoute: typeof TagTagRoute
@@ -162,6 +212,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/canais': {
+      id: '/canais'
+      path: '/canais'
+      fullPath: '/canais'
+      preLoaderRoute: typeof CanaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/equipamentos': {
       id: '/equipamentos'
       path: '/equipamentos'
@@ -176,6 +233,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExplorarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mensagens': {
+      id: '/mensagens'
+      path: '/mensagens'
+      fullPath: '/mensagens'
+      preLoaderRoute: typeof MensagensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/salvos': {
       id: '/salvos'
       path: '/salvos'
@@ -183,12 +247,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SalvosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/canais/$slug': {
+      id: '/canais/$slug'
+      path: '/$slug'
+      fullPath: '/canais/$slug'
+      preLoaderRoute: typeof CanaisSlugRouteImport
+      parentRoute: typeof CanaisRoute
+    }
     '/equipamentos/$slug': {
       id: '/equipamentos/$slug'
       path: '/$slug'
       fullPath: '/equipamentos/$slug'
       preLoaderRoute: typeof EquipamentosSlugRouteImport
       parentRoute: typeof EquipamentosRoute
+    }
+    '/mensagens/$id': {
+      id: '/mensagens/$id'
+      path: '/$id'
+      fullPath: '/mensagens/$id'
+      preLoaderRoute: typeof MensagensIdRouteImport
+      parentRoute: typeof MensagensRoute
     }
     '/post/$id': {
       id: '/post/$id'
@@ -214,6 +292,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CanaisRouteChildren {
+  CanaisSlugRoute: typeof CanaisSlugRoute
+}
+
+const CanaisRouteChildren: CanaisRouteChildren = {
+  CanaisSlugRoute: CanaisSlugRoute,
+}
+
+const CanaisRouteWithChildren =
+  CanaisRoute._addFileChildren(CanaisRouteChildren)
+
 interface EquipamentosRouteChildren {
   EquipamentosSlugRoute: typeof EquipamentosSlugRoute
 }
@@ -226,11 +315,25 @@ const EquipamentosRouteWithChildren = EquipamentosRoute._addFileChildren(
   EquipamentosRouteChildren,
 )
 
+interface MensagensRouteChildren {
+  MensagensIdRoute: typeof MensagensIdRoute
+}
+
+const MensagensRouteChildren: MensagensRouteChildren = {
+  MensagensIdRoute: MensagensIdRoute,
+}
+
+const MensagensRouteWithChildren = MensagensRoute._addFileChildren(
+  MensagensRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  CanaisRoute: CanaisRouteWithChildren,
   EquipamentosRoute: EquipamentosRouteWithChildren,
   ExplorarRoute: ExplorarRoute,
+  MensagensRoute: MensagensRouteWithChildren,
   SalvosRoute: SalvosRoute,
   PostIdRoute: PostIdRoute,
   TagTagRoute: TagTagRoute,
