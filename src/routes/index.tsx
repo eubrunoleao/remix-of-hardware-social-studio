@@ -1,24 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AppShell } from "@/components/AppShell";
+import { PostComposer } from "@/components/PostComposer";
+import { FeedList } from "@/components/FeedList";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "SetupSocial — a rede social do hardware" },
+      { name: "description", content: "Encontre quem já tem o equipamento que você quer comprar e leia experiências reais com GPUs, periféricos, consoles e celulares." },
+      { property: "og:title", content: "SetupSocial — a rede social do hardware" },
+      { property: "og:description", content: "Experiências reais com hardware, periféricos, consoles e celulares." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <AppShell>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="rounded-full bg-secondary px-3 py-1 font-medium">Recentes</span>
+          <span className="cursor-not-allowed rounded-full px-3 py-1 text-muted-foreground/60" title="Em breve">Seguindo · em breve</span>
+        </div>
+        <PostComposer />
+        <FeedList filter={{ kind: "all" }} empty="O feed está vazio. Faça a primeira publicação!" />
+      </div>
+    </AppShell>
   );
 }
