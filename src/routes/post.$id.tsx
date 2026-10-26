@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { PostCard } from "@/components/PostCard";
 import { useMyInteractions, useFeed } from "@/lib/posts";
@@ -20,8 +19,7 @@ export const Route = createFileRoute("/post/$id")({
 
 function PostPage() {
   const { id } = Route.useParams();
-  const feed = useFeed({ kind: "post", id } as never);
-  void useQuery;
+  const feed = useFeed({ kind: "post", id });
   const post = feed.data?.pages[0]?.posts[0];
   const mine = useMyInteractions(post ? [post.id] : []);
   return (

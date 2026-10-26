@@ -16,7 +16,8 @@ export type FeedFilter =
   | { kind: "tag"; tag: string }
   | { kind: "product"; productId: string }
   | { kind: "author"; authorId: string }
-  | { kind: "saved" };
+  | { kind: "saved" }
+  | { kind: "post"; id: string };
 
 export type FeedPost = {
   id: string;
@@ -65,6 +66,7 @@ export function useFeed(filter: FeedFilter) {
       if (ids && ids.length === 0) return { posts: [] as FeedPost[], next: null };
       let q = supabase.from("posts").select(POST_SELECT).order("created_at", { ascending: false }).limit(PAGE_SIZE);
       if (ids) q = q.in("id", ids);
+      if (filter.kind === "post") q = q.eq("id", filter.id);
       if (filter.kind === "author") q = q.eq("author_id", filter.authorId);
       if (pageParam) q = q.lt("created_at", pageParam);
       const { data, error } = await q;
