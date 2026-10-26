@@ -10,19 +10,44 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EquipamentosRouteImport } from './routes/equipamentos'
+import { Route as ExplorarRouteImport } from './routes/explorar'
 import { Route as SalvosRouteImport } from './routes/salvos'
+import { Route as EquipamentosSlugRouteImport } from './routes/equipamentos.$slug'
 import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as TagTagRouteImport } from './routes/tag.$tag'
+import { Route as UUsernameRouteImport } from './routes/u.$username'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipamentosRoute = EquipamentosRouteImport.update({
+  id: '/equipamentos',
+  path: '/equipamentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExplorarRoute = ExplorarRouteImport.update({
+  id: '/explorar',
+  path: '/explorar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SalvosRoute = SalvosRouteImport.update({
   id: '/salvos',
   path: '/salvos',
   getParentRoute: () => rootRouteImport,
+} as any)
+const EquipamentosSlugRoute = EquipamentosSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => EquipamentosRoute,
 } as any)
 const PostIdRoute = PostIdRouteImport.update({
   id: '/post/$id',
@@ -34,39 +59,91 @@ const TagTagRoute = TagTagRouteImport.update({
   path: '/tag/$tag',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/equipamentos': typeof EquipamentosRouteWithChildren
+  '/explorar': typeof ExplorarRoute
   '/salvos': typeof SalvosRoute
+  '/equipamentos/$slug': typeof EquipamentosSlugRoute
   '/post/$id': typeof PostIdRoute
   '/tag/$tag': typeof TagTagRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/equipamentos': typeof EquipamentosRouteWithChildren
+  '/explorar': typeof ExplorarRoute
   '/salvos': typeof SalvosRoute
+  '/equipamentos/$slug': typeof EquipamentosSlugRoute
   '/post/$id': typeof PostIdRoute
   '/tag/$tag': typeof TagTagRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/equipamentos': typeof EquipamentosRouteWithChildren
+  '/explorar': typeof ExplorarRoute
   '/salvos': typeof SalvosRoute
+  '/equipamentos/$slug': typeof EquipamentosSlugRoute
   '/post/$id': typeof PostIdRoute
   '/tag/$tag': typeof TagTagRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/salvos' | '/post/$id' | '/tag/$tag'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/equipamentos'
+    | '/explorar'
+    | '/salvos'
+    | '/equipamentos/$slug'
+    | '/post/$id'
+    | '/tag/$tag'
+    | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/salvos' | '/post/$id' | '/tag/$tag'
-  id: '__root__' | '/' | '/salvos' | '/post/$id' | '/tag/$tag'
+  to:
+    | '/'
+    | '/auth'
+    | '/equipamentos'
+    | '/explorar'
+    | '/salvos'
+    | '/equipamentos/$slug'
+    | '/post/$id'
+    | '/tag/$tag'
+    | '/u/$username'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/equipamentos'
+    | '/explorar'
+    | '/salvos'
+    | '/equipamentos/$slug'
+    | '/post/$id'
+    | '/tag/$tag'
+    | '/u/$username'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  EquipamentosRoute: typeof EquipamentosRouteWithChildren
+  ExplorarRoute: typeof ExplorarRoute
   SalvosRoute: typeof SalvosRoute
   PostIdRoute: typeof PostIdRoute
   TagTagRoute: typeof TagTagRoute
+  UUsernameRoute: typeof UUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,12 +155,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipamentos': {
+      id: '/equipamentos'
+      path: '/equipamentos'
+      fullPath: '/equipamentos'
+      preLoaderRoute: typeof EquipamentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explorar': {
+      id: '/explorar'
+      path: '/explorar'
+      fullPath: '/explorar'
+      preLoaderRoute: typeof ExplorarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/salvos': {
       id: '/salvos'
       path: '/salvos'
       fullPath: '/salvos'
       preLoaderRoute: typeof SalvosRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/equipamentos/$slug': {
+      id: '/equipamentos/$slug'
+      path: '/$slug'
+      fullPath: '/equipamentos/$slug'
+      preLoaderRoute: typeof EquipamentosSlugRouteImport
+      parentRoute: typeof EquipamentosRoute
     }
     '/post/$id': {
       id: '/post/$id'
@@ -99,14 +204,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TagTagRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface EquipamentosRouteChildren {
+  EquipamentosSlugRoute: typeof EquipamentosSlugRoute
+}
+
+const EquipamentosRouteChildren: EquipamentosRouteChildren = {
+  EquipamentosSlugRoute: EquipamentosSlugRoute,
+}
+
+const EquipamentosRouteWithChildren = EquipamentosRoute._addFileChildren(
+  EquipamentosRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  EquipamentosRoute: EquipamentosRouteWithChildren,
+  ExplorarRoute: ExplorarRoute,
   SalvosRoute: SalvosRoute,
   PostIdRoute: PostIdRoute,
   TagTagRoute: TagTagRoute,
+  UUsernameRoute: UUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
