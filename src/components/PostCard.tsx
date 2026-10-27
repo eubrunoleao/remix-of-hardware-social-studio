@@ -147,6 +147,11 @@ export function PostCard({ post, liked, saved }: { post: FeedPost; liked: boolea
           </div>
           <div className="mt-1 flex flex-wrap gap-1.5 text-xs">
             {post.category && <span className="rounded bg-muted px-2 py-0.5 text-muted-foreground">{post.category.name}</span>}
+            {post.channel && (
+              <Link to="/canais/$slug" params={{ slug: post.channel.slug }} className="rounded bg-accent/15 px-2 py-0.5 text-lavender hover:underline">
+                {post.channel.name}
+              </Link>
+            )}
             {post.is_review && (
               <span className="inline-flex items-center gap-1 rounded bg-warning/15 px-2 py-0.5 text-warning">
                 Avaliação <Star className="size-3 fill-warning" /> {post.rating}/5

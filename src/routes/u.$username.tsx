@@ -93,11 +93,51 @@ function ProfileBody({ p, isMe, userId, editing, setEditing, name, setName, bio,
               <>
                 <h1 className="text-xl font-bold">{p.display_name}</h1>
                 <p className="text-sm text-muted-foreground">@{p.username}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {counts.data?.followers ?? 0} seguidores · {counts.data?.following ?? 0} seguindo
+                </p>
                 {p.bio && <p className="mt-2 text-sm">{p.bio}</p>}
                 {isMe && (
                   <Button size="sm" variant="outline" className="mt-3" onClick={() => { setName(p.display_name); setBio(p.bio ?? ""); setEditing(true); }}>
                     Editar perfil
                   </Button>
+                )}
+                {!isMe && userId && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant={followState.data?.following ? "secondary" : "default"}
+                      disabled={toggleFollow.isPending}
+                      onClick={() => toggleFollow.mutate({ otherId: p.id, on: !followState.data?.following })}
+                    >
+                      {followState.data?.following ? "Seguindo" : "Seguir"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={startConv.isPending}
+                      onClick={() =>
+                        startConv.mutate(p.id, {
+                          onSuccess: (id) => navigate({ to: "/mensagens/$id", params: { id } }),
+                          onError: () => toast.error("Não foi possível iniciar a conversa"),
+                        })
+                      }
+                    >
+                      <MessageSquare /> Mensagem
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      aria-label={followState.data?.muted ? "Deixar de silenciar" : "Silenciar"}
+                      disabled={toggleMute.isPending}
+                      onClick={() => {
+                        const on = !followState.data?.muted;
+                        toggleMute.mutate({ otherId: p.id, on }, { onSuccess: () => toast.success(on ? "Usuário silenciado" : "Silêncio removido") });
+                      }}
+                    >
+                      {followState.data?.muted ? <Volume2 /> : <VolumeX />}
+                    </Button>
+                  </div>
                 )}
               </>
             )}
