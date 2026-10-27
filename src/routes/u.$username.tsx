@@ -1,13 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { MessageSquare, VolumeX, Volume2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { FeedList } from "@/components/FeedList";
 import { MachineEditor } from "@/components/MachineEditor";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useFollowCounts, useFollowState, useStartConversation, useToggleFollow, useToggleMuteBlock } from "@/lib/social";
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => ({
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/u/$username")({
 function Profile() {
   const { username } = Route.useParams();
   const { userId } = useAuth();
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
@@ -60,6 +63,15 @@ function Profile() {
     );
   const p = q.data;
   const isMe = p.id === userId;
+  return <ProfileBody p={p} isMe={isMe} userId={userId} editing={editing} setEditing={setEditing} name={name} setName={setName} bio={bio} setBio={setBio} save={save} navigate={navigate} />;
+}
+
+function ProfileBody({ p, isMe, userId, editing, setEditing, name, setName, bio, setBio, save, navigate }: any) {
+  const followState = useFollowState(isMe ? undefined : p.id);
+  const counts = useFollowCounts(p.id);
+  const toggleFollow = useToggleFollow();
+  const toggleMute = useToggleMuteBlock("mutes");
+  const startConv = useStartConversation();
   return (
     <AppShell>
       <section className="mb-4 rounded-xl border bg-card p-5">
@@ -81,11 +93,51 @@ function Profile() {
               <>
                 <h1 className="text-xl font-bold">{p.display_name}</h1>
                 <p className="text-sm text-muted-foreground">@{p.username}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {counts.data?.followers ?? 0} seguidores · {counts.data?.following ?? 0} seguindo
+                </p>
                 {p.bio && <p className="mt-2 text-sm">{p.bio}</p>}
                 {isMe && (
                   <Button size="sm" variant="outline" className="mt-3" onClick={() => { setName(p.display_name); setBio(p.bio ?? ""); setEditing(true); }}>
                     Editar perfil
                   </Button>
+                )}
+                {!isMe && userId && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant={followState.data?.following ? "secondary" : "default"}
+                      disabled={toggleFollow.isPending}
+                      onClick={() => toggleFollow.mutate({ otherId: p.id, on: !followState.data?.following })}
+                    >
+                      {followState.data?.following ? "Seguindo" : "Seguir"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={startConv.isPending}
+                      onClick={() =>
+                        startConv.mutate(p.id, {
+                          onSuccess: (id) => navigate({ to: "/mensagens/$id", params: { id } }),
+                          onError: () => toast.error("Não foi possível iniciar a conversa"),
+                        })
+                      }
+                    >
+                      <MessageSquare /> Mensagem
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      aria-label={followState.data?.muted ? "Deixar de silenciar" : "Silenciar"}
+                      disabled={toggleMute.isPending}
+                      onClick={() => {
+                        const on = !followState.data?.muted;
+                        toggleMute.mutate({ otherId: p.id, on }, { onSuccess: () => toast.success(on ? "Usuário silenciado" : "Silêncio removido") });
+                      }}
+                    >
+                      {followState.data?.muted ? <Volume2 /> : <VolumeX />}
+                    </Button>
+                  </div>
                 )}
               </>
             )}

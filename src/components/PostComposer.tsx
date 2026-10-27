@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useCatalog } from "@/lib/posts";
+import { useChannels } from "@/lib/social";
 import { MAX_HASHTAGS, normalizeHashtag, parseHashtags, suggestHashtags } from "@/lib/hashtags";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,8 +17,10 @@ export function PostComposer() {
   const { userId, ready } = useAuth();
   const qc = useQueryClient();
   const catalog = useCatalog();
+  const channels = useChannels();
   const [body, setBody] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [channelId, setChannelId] = useState("");
   const [productIds, setProductIds] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -67,6 +70,7 @@ export function PostComposer() {
       _is_review: isReview,
       _rating: isReview ? rating : (null as unknown as number),
       _client_key: clientKey.current,
+      _channel_id: channelId || (null as unknown as string),
     });
     setBusy(false);
     if (error) { toast.error(error.message || "Não foi possível publicar. Tente novamente."); return; }
@@ -123,6 +127,19 @@ export function PostComposer() {
                 {p.name}
               </option>
             ))}
+        </select>
+        <select
+          aria-label="Comunidade (canal)"
+          value={channelId}
+          onChange={(e) => setChannelId(e.target.value)}
+          className="h-9 rounded-md border bg-background px-2 text-sm"
+        >
+          <option value="">Comunidade (opcional)</option>
+          {channels.data?.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
         </select>
       </div>
 

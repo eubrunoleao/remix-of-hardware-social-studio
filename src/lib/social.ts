@@ -140,10 +140,14 @@ export function useToggleMuteBlock(table: "mutes" | "blocks") {
   return useMutation({
     mutationFn: async ({ otherId, on }: { otherId: string; on: boolean }) => {
       if (!userId) throw new Error("Faça login primeiro");
-      const col = table === "mutes" ? "muted_id" : "blocked_id";
-      const res = on
-        ? await supabase.from(table).insert({ user_id: userId, [col]: otherId } as any)
-        : await supabase.from(table).delete().eq(table === "mutes" ? "user_id" : "blocker_id", userId).eq(col, otherId);
+      const res =
+        table === "mutes"
+          ? on
+            ? await supabase.from("mutes").insert({ user_id: userId, muted_id: otherId })
+            : await supabase.from("mutes").delete().eq("user_id", userId).eq("muted_id", otherId)
+          : on
+            ? await supabase.from("blocks").insert({ blocker_id: userId, blocked_id: otherId })
+            : await supabase.from("blocks").delete().eq("blocker_id", userId).eq("blocked_id", otherId);
       if (res.error && res.error.code !== "23505") throw res.error;
     },
     onSettled: () => {
