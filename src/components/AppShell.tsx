@@ -11,7 +11,16 @@ const NAV = [
   { to: "/", label: "Início", icon: Home },
   { to: "/explorar", label: "Explorar", icon: Compass },
   { to: "/equipamentos", label: "Equipamentos", icon: Cpu },
+  { to: "/canais", label: "Canais", icon: Users },
+  { to: "/mensagens", label: "Mensagens", icon: MessageSquare },
   { to: "/salvos", label: "Salvos", icon: Bookmark },
+] as const;
+
+const MOBILE_NAV = [
+  { to: "/", label: "Início", icon: Home },
+  { to: "/explorar", label: "Explorar", icon: Compass },
+  { to: "/canais", label: "Canais", icon: Users },
+  { to: "/mensagens", label: "Mensagens", icon: MessageSquare },
 ] as const;
 
 export function Logo() {
@@ -59,27 +68,7 @@ function LeftColumn() {
             <Icon className="size-4" /> {label}
           </Link>
         ))}
-        {[
-          { label: "Comunidades", icon: Users },
-          { label: "Mensagens", icon: MessageSquare },
-        ].map(({ label, icon: Icon }) => (
-          <span
-            key={label}
-            aria-disabled="true"
-            className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground/60"
-          >
-            <Icon className="size-4" /> {label}
-            <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide">Em breve</span>
-          </span>
-        ))}
       </nav>
-      <div className="rounded-xl border bg-card p-3 text-xs text-muted-foreground">
-        Canais e conversas chegam na próxima etapa. Por enquanto, siga hashtags em{" "}
-        <Link to="/explorar" className="text-lavender underline-offset-2 hover:underline">
-          Explorar
-        </Link>
-        .
-      </div>
       <div className="mt-auto">
         {userId ? (
           <div className="flex items-center gap-2">
@@ -112,7 +101,7 @@ function MobileNav() {
       aria-label="Navegação"
       className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 backdrop-blur lg:hidden"
     >
-      {NAV.map(({ to, label, icon: Icon }) => (
+      {MOBILE_NAV.map(({ to, label, icon: Icon }) => (
         <Link
           key={to}
           to={to}
