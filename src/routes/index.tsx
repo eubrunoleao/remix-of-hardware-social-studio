@@ -37,7 +37,7 @@ const EMPTY: Record<string, string> = {
 function Index() {
   const { userId } = useAuth();
   const [sort, setSort] = useState("recentes");
-  const current = SORTS.find((s) => s.key === sort) ?? SORTS[0];
+  const current = SORTS.find((s) => s.key === sort) ?? SORTS[0]!;
 
   return (
     <AppShell>
@@ -66,7 +66,7 @@ function Index() {
           })}
         </div>
         <PostComposer />
-        <FeedList key={sort} filter={current.filter} empty={EMPTY[sort]} />
+        <FeedList key={sort} filter={current.filter} empty={EMPTY[sort] ?? "Nada por aqui ainda."} />
       </div>
     </AppShell>
   );
