@@ -1,13 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { MessageSquare, VolumeX, Volume2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { FeedList } from "@/components/FeedList";
 import { MachineEditor } from "@/components/MachineEditor";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useFollowCounts, useFollowState, useStartConversation, useToggleFollow, useToggleMuteBlock } from "@/lib/social";
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => ({
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/u/$username")({
 function Profile() {
   const { username } = Route.useParams();
   const { userId } = useAuth();
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
@@ -60,6 +63,15 @@ function Profile() {
     );
   const p = q.data;
   const isMe = p.id === userId;
+  return <ProfileBody p={p} isMe={isMe} userId={userId} editing={editing} setEditing={setEditing} name={name} setName={setName} bio={bio} setBio={setBio} save={save} navigate={navigate} />;
+}
+
+function ProfileBody({ p, isMe, userId, editing, setEditing, name, setName, bio, setBio, save, navigate }: any) {
+  const followState = useFollowState(isMe ? undefined : p.id);
+  const counts = useFollowCounts(p.id);
+  const toggleFollow = useToggleFollow();
+  const toggleMute = useToggleMuteBlock("mutes");
+  const startConv = useStartConversation();
   return (
     <AppShell>
       <section className="mb-4 rounded-xl border bg-card p-5">
