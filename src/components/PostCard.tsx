@@ -7,6 +7,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useToggle, type FeedPost } from "@/lib/posts";
 import { Button } from "@/components/ui/button";
+import { useSignedUrls } from "@/lib/images";
+import { ReportDialog } from "@/components/ReportDialog";
+
+function PostImages({ paths }: { paths: string[] }) {
+  const q = useSignedUrls(paths);
+  if (!paths.length) return null;
+  if (q.isLoading) return <div className="mt-3 h-48 animate-pulse rounded-lg bg-muted" />;
+  if (q.isError) return <p className="mt-3 text-xs text-muted-foreground">Não foi possível carregar as imagens.</p>;
+  return (
+    <div className={`mt-3 grid gap-1.5 ${paths.length > 1 ? "grid-cols-2" : ""}`}>
+      {q.data?.map((u, i) => (
+        <a key={u} href={u} target="_blank" rel="noreferrer">
+          <img src={u} alt={`Imagem ${i + 1} da publicação`} loading="lazy" className="max-h-96 w-full rounded-lg object-cover" />
+        </a>
+      ))}
+    </div>
+  );
+}
 
 function timeAgo(iso: string) {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -168,6 +186,8 @@ export function PostCard({ post, liked, saved }: { post: FeedPost; liked: boolea
 
       <p className="mt-3 whitespace-pre-wrap break-words leading-relaxed">{post.body}</p>
 
+      <PostImages paths={post.images} />
+
       {(post.products.length > 0 || post.tags.length > 0) && (
         <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
           {post.products.map((p) => (
@@ -217,9 +237,15 @@ export function PostCard({ post, liked, saved }: { post: FeedPost; liked: boolea
         >
           <Link2 />
         </Button>
-        <Button variant="ghost" size="sm" className="ml-auto" aria-label="Denunciar (em breve)" disabled title="Denúncias chegam em breve">
-          <Flag />
-        </Button>
+        {post.author_id !== userId && (
+          userId ? (
+            <ReportDialog postId={post.id} />
+          ) : (
+            <Button variant="ghost" size="sm" className="ml-auto" aria-label="Denunciar" onClick={needAuth}>
+              <Flag />
+            </Button>
+          )
+        )}
       </footer>
       {open && <Comments postId={post.id} />}
     </article>

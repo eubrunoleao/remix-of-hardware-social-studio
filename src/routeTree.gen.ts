@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CanaisRouteImport } from './routes/canais'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as EquipamentosRouteImport } from './routes/equipamentos'
 import { Route as ExplorarRouteImport } from './routes/explorar'
 import { Route as MensagensRouteImport } from './routes/mensagens'
+import { Route as ModeracaoRouteImport } from './routes/moderacao'
 import { Route as SalvosRouteImport } from './routes/salvos'
 import { Route as CanaisSlugRouteImport } from './routes/canais.$slug'
 import { Route as EquipamentosSlugRouteImport } from './routes/equipamentos.$slug'
@@ -38,6 +40,11 @@ const CanaisRoute = CanaisRouteImport.update({
   path: '/canais',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EquipamentosRoute = EquipamentosRouteImport.update({
   id: '/equipamentos',
   path: '/equipamentos',
@@ -51,6 +58,11 @@ const ExplorarRoute = ExplorarRouteImport.update({
 const MensagensRoute = MensagensRouteImport.update({
   id: '/mensagens',
   path: '/mensagens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModeracaoRoute = ModeracaoRouteImport.update({
+  id: '/moderacao',
+  path: '/moderacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SalvosRoute = SalvosRouteImport.update({
@@ -93,9 +105,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/canais': typeof CanaisRouteWithChildren
+  '/configuracoes': typeof ConfiguracoesRoute
   '/equipamentos': typeof EquipamentosRouteWithChildren
   '/explorar': typeof ExplorarRoute
   '/mensagens': typeof MensagensRouteWithChildren
+  '/moderacao': typeof ModeracaoRoute
   '/salvos': typeof SalvosRoute
   '/canais/$slug': typeof CanaisSlugRoute
   '/equipamentos/$slug': typeof EquipamentosSlugRoute
@@ -108,9 +122,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/canais': typeof CanaisRouteWithChildren
+  '/configuracoes': typeof ConfiguracoesRoute
   '/equipamentos': typeof EquipamentosRouteWithChildren
   '/explorar': typeof ExplorarRoute
   '/mensagens': typeof MensagensRouteWithChildren
+  '/moderacao': typeof ModeracaoRoute
   '/salvos': typeof SalvosRoute
   '/canais/$slug': typeof CanaisSlugRoute
   '/equipamentos/$slug': typeof EquipamentosSlugRoute
@@ -124,9 +140,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/canais': typeof CanaisRouteWithChildren
+  '/configuracoes': typeof ConfiguracoesRoute
   '/equipamentos': typeof EquipamentosRouteWithChildren
   '/explorar': typeof ExplorarRoute
   '/mensagens': typeof MensagensRouteWithChildren
+  '/moderacao': typeof ModeracaoRoute
   '/salvos': typeof SalvosRoute
   '/canais/$slug': typeof CanaisSlugRoute
   '/equipamentos/$slug': typeof EquipamentosSlugRoute
@@ -141,9 +159,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/canais'
+    | '/configuracoes'
     | '/equipamentos'
     | '/explorar'
     | '/mensagens'
+    | '/moderacao'
     | '/salvos'
     | '/canais/$slug'
     | '/equipamentos/$slug'
@@ -156,9 +176,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/canais'
+    | '/configuracoes'
     | '/equipamentos'
     | '/explorar'
     | '/mensagens'
+    | '/moderacao'
     | '/salvos'
     | '/canais/$slug'
     | '/equipamentos/$slug'
@@ -171,9 +193,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/canais'
+    | '/configuracoes'
     | '/equipamentos'
     | '/explorar'
     | '/mensagens'
+    | '/moderacao'
     | '/salvos'
     | '/canais/$slug'
     | '/equipamentos/$slug'
@@ -187,9 +211,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   CanaisRoute: typeof CanaisRouteWithChildren
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
   EquipamentosRoute: typeof EquipamentosRouteWithChildren
   ExplorarRoute: typeof ExplorarRoute
   MensagensRoute: typeof MensagensRouteWithChildren
+  ModeracaoRoute: typeof ModeracaoRoute
   SalvosRoute: typeof SalvosRoute
   PostIdRoute: typeof PostIdRoute
   TagTagRoute: typeof TagTagRoute
@@ -219,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CanaisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/equipamentos': {
       id: '/equipamentos'
       path: '/equipamentos'
@@ -238,6 +271,13 @@ declare module '@tanstack/react-router' {
       path: '/mensagens'
       fullPath: '/mensagens'
       preLoaderRoute: typeof MensagensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moderacao': {
+      id: '/moderacao'
+      path: '/moderacao'
+      fullPath: '/moderacao'
+      preLoaderRoute: typeof ModeracaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/salvos': {
@@ -331,9 +371,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   CanaisRoute: CanaisRouteWithChildren,
+  ConfiguracoesRoute: ConfiguracoesRoute,
   EquipamentosRoute: EquipamentosRouteWithChildren,
   ExplorarRoute: ExplorarRoute,
   MensagensRoute: MensagensRouteWithChildren,
+  ModeracaoRoute: ModeracaoRoute,
   SalvosRoute: SalvosRoute,
   PostIdRoute: PostIdRoute,
   TagTagRoute: TagTagRoute,

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, Compass, Cpu, Users, Bookmark, MessageSquare, PenSquare, LogIn, LogOut, UserRound } from "lucide-react";
+import { Home, Compass, Cpu, Users, Bookmark, MessageSquare, PenSquare, LogIn, LogOut, UserRound, Settings, Shield } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,8 @@ const NAV = [
   { to: "/canais", label: "Canais", icon: Users },
   { to: "/mensagens", label: "Mensagens", icon: MessageSquare },
   { to: "/salvos", label: "Salvos", icon: Bookmark },
+  { to: "/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/moderacao", label: "Moderação", icon: Shield },
 ] as const;
 
 const MOBILE_NAV = [

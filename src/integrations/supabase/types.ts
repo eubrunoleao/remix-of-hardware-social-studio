@@ -342,6 +342,36 @@ export type Database = {
           },
         ]
       }
+      moderation_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          note: string | null
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       mutes: {
         Row: {
           created_at: string
@@ -398,6 +428,35 @@ export type Database = {
           },
           {
             foreignKeyName: "post_hashtags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_images: {
+        Row: {
+          created_at: string
+          id: string
+          path: string
+          post_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          path: string
+          post_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          path?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_images_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
@@ -620,6 +679,50 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          post_id: string | null
+          reason: string
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          post_id?: string | null
+          reason: string
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          post_id?: string | null
+          reason?: string
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_devices: {
         Row: {
           created_at: string
@@ -652,11 +755,30 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      claim_first_admin: { Args: never; Returns: boolean }
       create_channel: {
         Args: { _description: string; _name: string; _slug: string }
         Returns: string
@@ -688,11 +810,24 @@ export type Database = {
             }
             Returns: string
           }
+      delete_my_account: { Args: never; Returns: undefined }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_conversation_member: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       normalize_hashtag: { Args: { raw: string }; Returns: string }
+      resolve_report: {
+        Args: { _note: string; _remove_post: boolean; _report_id: string }
+        Returns: undefined
+      }
       respond_conversation: {
         Args: { _accept: boolean; _conversation_id: string }
         Returns: undefined
@@ -701,9 +836,17 @@ export type Database = {
         Args: { _body: string; _conversation_id: string }
         Returns: string
       }
+      set_user_role: {
+        Args: {
+          _grant: boolean
+          _role: Database["public"]["Enums"]["app_role"]
+          _username: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -830,6 +973,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator"],
+    },
   },
 } as const
