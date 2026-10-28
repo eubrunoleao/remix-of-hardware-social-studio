@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- This remix starts with an empty PostgreSQL migration journal and the unchanged blank Drizzle schema placeholder; create future schema changes through the migration tool rather than replaying the source project's copied history.
