@@ -1,34 +1,5 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1793024689452,
-      "tag": "0000_migration",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1793027345191,
-      "tag": "0001_stage2_social",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1793195361708,
-      "tag": "0002_stage3_media_moderation",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1793195381466,
-      "tag": "0003_delete_account_no_storage_sql",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }
