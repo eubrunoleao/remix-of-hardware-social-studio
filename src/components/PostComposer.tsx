@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Star, X } from "lucide-react";
+import { ImagePlus, Star, X } from "lucide-react";
+import { MAX_IMAGES_PER_POST, uploadPostImages, validateImage } from "@/lib/images";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -27,6 +28,8 @@ export function PostComposer() {
   const [isReview, setIsReview] = useState(false);
   const [rating, setRating] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
   const clientKey = useRef(crypto.randomUUID());
 
   const category = catalog.data?.categories.find((c) => c.id === categoryId);
@@ -62,7 +65,7 @@ export function PostComposer() {
     if (isReview && !rating) { toast.error("Dê uma nota de 1 a 5 para a avaliação"); return; }
     setBusy(true);
     const pending = tagInput.trim() ? [...tags, ...parseHashtags(tagInput)].slice(0, MAX_HASHTAGS) : tags;
-    const { error } = await supabase.rpc("create_post", {
+    const { data: postId, error } = await supabase.rpc("create_post", {
       _body: body,
       _category_id: categoryId || (null as unknown as string),
       _product_ids: productIds,
@@ -72,8 +75,13 @@ export function PostComposer() {
       _client_key: clientKey.current,
       _channel_id: channelId || (null as unknown as string),
     });
+    if (error) { setBusy(false); toast.error(error.message || "Não foi possível publicar. Tente novamente."); return; }
+    if (files.length && postId) {
+      try { await uploadPostImages(userId!, postId as string, files); }
+      catch { toast.error("Publicado, mas alguma imagem não pôde ser enviada"); }
+    }
     setBusy(false);
-    if (error) { toast.error(error.message || "Não foi possível publicar. Tente novamente."); return; }
+    setFiles([]);
     toast.success("Publicado!");
     clientKey.current = crypto.randomUUID();
     setBody("");
@@ -194,8 +202,37 @@ export function PostComposer() {
         </div>
       )}
 
+      {files.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {files.map((f, i) => (
+            <div key={i} className="relative">
+              <img src={URL.createObjectURL(f)} alt={`Prévia ${i + 1}`} className="size-20 rounded-lg object-cover" />
+              <button type="button" aria-label="Remover imagem" onClick={() => setFiles(files.filter((_, j) => j !== i))}
+                className="absolute -right-1.5 -top-1.5 rounded-full bg-background p-0.5 border">
+                <X className="size-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <input ref={fileRef} type="file" hidden multiple accept="image/jpeg,image/png,image/webp,image/gif"
+        onChange={(e) => {
+          const next = [...files];
+          for (const f of Array.from(e.target.files ?? [])) {
+            const err = validateImage(f);
+            if (err) { toast.error(`${f.name}: ${err}`); continue; }
+            if (next.length >= MAX_IMAGES_PER_POST) { toast.warning(`Máximo de ${MAX_IMAGES_PER_POST} imagens`); break; }
+            next.push(f);
+          }
+          setFiles(next);
+          e.target.value = "";
+        }} />
+
       <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
         <div className="flex items-center gap-3">
+          <Button type="button" variant="ghost" size="sm" aria-label="Adicionar imagens" disabled={files.length >= MAX_IMAGES_PER_POST} onClick={() => fileRef.current?.click()}>
+            <ImagePlus /> Imagem
+          </Button>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={isReview} onChange={(e) => setIsReview(e.target.checked)} className="accent-primary" />
             Avaliação de produto

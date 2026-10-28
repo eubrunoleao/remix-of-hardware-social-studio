@@ -10,7 +10,7 @@ const POST_SELECT = `id, body, is_review, rating, created_at, author_id,
   channel:channels(slug, name),
   post_products(product:products(slug, name)),
   post_hashtags(hashtag:hashtags(tag, label)),
-  post_likes(count), comments(count)`;
+  post_images(path, created_at), post_likes(count), comments(count)`;
 
 export type FeedFilter =
   | { kind: "all" }
@@ -36,6 +36,7 @@ export type FeedPost = {
   channel: { slug: string; name: string } | null;
   products: { slug: string; name: string }[];
   tags: { tag: string; label: string }[];
+  images: string[];
   likeCount: number;
   commentCount: number;
 };
@@ -135,6 +136,7 @@ export function useFeed(filter: FeedFilter) {
         channel: p.channel,
         products: (p.post_products ?? []).map((x: any) => x.product).filter(Boolean),
         tags: (p.post_hashtags ?? []).map((x: any) => x.hashtag).filter(Boolean),
+        images: (p.post_images ?? []).map((x: any) => x.path),
         likeCount: p.post_likes?.[0]?.count ?? 0,
         commentCount: p.comments?.[0]?.count ?? 0,
       }));
