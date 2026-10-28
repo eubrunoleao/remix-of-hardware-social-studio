@@ -158,7 +158,10 @@ function RolesAdmin() {
   const [role, setRole] = useState<"moderator" | "admin">("moderator");
   const run = async (grant: boolean) => {
     const { error } = await supabase.rpc("set_user_role", { _username: username.replace(/^@/, "").trim(), _role: role, _grant: grant });
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success(grant ? "Papel concedido" : "Papel removido");
     setUsername("");
     qc.invalidateQueries({ queryKey: ["audit"] });
