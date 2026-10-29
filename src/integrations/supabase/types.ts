@@ -657,24 +657,30 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_path: string | null
           bio: string | null
           created_at: string
           display_name: string
           id: string
+          machine_specs: Json
           username: string
         }
         Insert: {
+          avatar_path?: string | null
           bio?: string | null
           created_at?: string
           display_name: string
           id: string
+          machine_specs?: Json
           username: string
         }
         Update: {
+          avatar_path?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string
           id?: string
+          machine_specs?: Json
           username?: string
         }
         Relationships: []

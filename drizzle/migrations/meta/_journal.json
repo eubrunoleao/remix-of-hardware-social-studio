@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793275971121,
+      "tag": "0000_editable_profile_and_machine",
+      "breakpoints": true
+    }
+  ]
 }
