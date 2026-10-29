@@ -817,6 +817,7 @@ export type Database = {
             Returns: string
           }
       delete_my_account: { Args: never; Returns: undefined }
+      ensure_my_profile: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
