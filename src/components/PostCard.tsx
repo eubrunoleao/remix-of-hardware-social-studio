@@ -9,6 +9,7 @@ import { useToggle, type FeedPost } from "@/lib/posts";
 import { Button } from "@/components/ui/button";
 import { useSignedUrls } from "@/lib/images";
 import { ReportDialog } from "@/components/ReportDialog";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 
 function PostImages({ paths }: { paths: string[] }) {
   const q = useSignedUrls(paths);
@@ -152,9 +153,7 @@ export function PostCard({ post, liked, saved }: { post: FeedPost; liked: boolea
   return (
     <article className="rounded-xl border bg-card p-4">
       <header className="flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-brand font-display font-bold text-primary-foreground">
-          {post.author?.display_name.slice(0, 1).toUpperCase()}
-        </div>
+        <ProfileAvatar path={post.author?.avatar_path} name={post.author?.display_name ?? "Usuário"} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 text-sm">
             <Link to="/u/$username" params={{ username: post.author?.username ?? "" }} className="font-semibold hover:text-lavender">
