@@ -134,9 +134,15 @@ function Explore() {
                   Não foi possível pesquisar as máquinas.
                 </p>
                 <p className="mt-1 break-words">
-                  {machines.error instanceof Error
-                    ? machines.error.message
-                    : "Ocorreu um erro inesperado ao consultar o Supabase."}
+                  {(() => {
+                    const error = machines.error as unknown;
+                    if (error instanceof Error) return error.message;
+                    if (error && typeof error === "object" && "message" in error) {
+                      return String((error as { message: unknown }).message);
+                    }
+                    if (typeof error === "string") return error;
+                    return "Ocorreu um erro inesperado ao consultar o Supabase.";
+                  })()}
                 </p>
                 <button
                   type="button"
