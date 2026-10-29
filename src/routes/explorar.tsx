@@ -126,10 +126,26 @@ function Explore() {
             )}
 
             {machines.isError && (
-              <p className="text-sm text-destructive">
-                Não foi possível pesquisar as máquinas. Verifique se
-                a migração da busca foi executada no Supabase.
-              </p>
+              <div
+                role="alert"
+                className="rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+              >
+                <p className="font-medium">
+                  Não foi possível pesquisar as máquinas.
+                </p>
+                <p className="mt-1 break-words">
+                  {machines.error instanceof Error
+                    ? machines.error.message
+                    : "Ocorreu um erro inesperado ao consultar o Supabase."}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void machines.refetch()}
+                  className="mt-2 rounded-md border px-3 py-1.5 text-foreground hover:bg-muted"
+                >
+                  Tentar novamente
+                </button>
+              </div>
             )}
 
             {machines.data?.length === 0 && !machines.isLoading && (
