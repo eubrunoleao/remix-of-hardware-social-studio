@@ -141,7 +141,13 @@ function Explore() {
                       return String((error as { message: unknown }).message);
                     }
                     if (typeof error === "string") return error;
-                    return "Ocorreu um erro inesperado ao consultar o Supabase.";
+                    try {
+                      const serialized = JSON.stringify(error);
+                      if (serialized && serialized !== "{}") return serialized;
+                    } catch {
+                      // Ignore serialization failures and show the fallback below.
+                    }
+                    return String(error ?? "Erro sem detalhes retornados pelo Supabase.");
                   })()}
                 </p>
                 <button
