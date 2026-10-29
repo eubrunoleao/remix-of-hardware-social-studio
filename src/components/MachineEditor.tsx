@@ -1,113 +1,66 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { X, Plus } from "lucide-react";
+import { Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useCatalog } from "@/lib/posts";
 import { Button } from "@/components/ui/button";
+import { MACHINE_FIELDS, machineValues } from "@/lib/profile";
 
 export function MachineEditor({ userId, editable }: { userId: string; editable?: boolean }) {
   const qc = useQueryClient();
-  const catalog = useCatalog();
-  const [pick, setPick] = useState("");
-  const devices = useQuery({
-    queryKey: ["devices", userId],
+  const [editing, setEditing] = useState(false);
+  const [values, setValues] = useState<Record<string, string>>({});
+  const machine = useQuery({
+    queryKey: ["machine", userId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("user_devices")
-        .select("id, product:products(id, slug, name, category:categories(name))")
-        .eq("user_id", userId)
-        .order("created_at");
+      const { data, error } = await supabase.from("profiles").select("machine_specs").eq("id", userId).single();
       if (error) throw error;
-      return data;
+      return machineValues(data.machine_specs);
     },
   });
-
-  const add = useMutation({
-    mutationFn: async (productId: string) => {
-      const { error } = await supabase.from("user_devices").insert({ user_id: userId, product_id: productId });
-      if (error) throw new Error(error.code === "23505" ? "Esse equipamento já está na sua máquina" : error.message);
+  const save = useMutation({
+    mutationFn: async () => {
+      const specs = Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value.trim()]).filter(([, value]) => value));
+      const { error } = await supabase.from("profiles").update({ machine_specs: specs }).eq("id", userId).select("id").single();
+      if (error) throw error;
     },
     onSuccess: () => {
-      setPick("");
-      qc.invalidateQueries({ queryKey: ["devices", userId] });
+      setEditing(false);
+      qc.invalidateQueries({ queryKey: ["machine", userId] });
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Máquina atualizada");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: () => toast.error("Não foi possível salvar a máquina"),
   });
-  const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("user_devices").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["devices", userId] }),
-    onError: () => toast.error("Não foi possível remover"),
-  });
-
-  if (devices.isLoading) return <div className="h-16 animate-pulse rounded-lg bg-muted" />;
-  if (devices.isError)
-    return (
-      <p className="text-sm text-destructive">
-        Erro ao carregar.{" "}
-        <button className="underline" onClick={() => devices.refetch()}>
-          Tentar novamente
-        </button>
-      </p>
-    );
-
-  const owned = new Set(devices.data?.map((d: any) => d.product?.id));
+  if (machine.isLoading) return <div className="h-16 animate-pulse rounded-lg bg-muted" />;
+  if (machine.isError) return <Button variant="outline" onClick={() => machine.refetch()}>Tentar novamente</Button>;
+  if (editing) return (
+    <form className="grid gap-3" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
+      {MACHINE_FIELDS.map(([key, label]) => (
+        <label key={key} className="grid gap-1 text-xs text-muted-foreground">
+          {label}
+          <textarea aria-label={label} rows={key === "other" ? 3 : 1} value={values[key] ?? ""} onChange={(e) => setValues({ ...values, [key]: e.target.value })} className="min-h-9 w-full resize-y rounded-md border bg-background px-3 py-2 text-sm text-foreground" />
+        </label>
+      ))}
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" type="submit" disabled={save.isPending}><Save /> Salvar máquina</Button>
+        <Button size="sm" variant="ghost" type="button" disabled={save.isPending} onClick={() => setEditing(false)}>Cancelar</Button>
+      </div>
+    </form>
+  );
+  const current = machine.data ?? {};
   return (
-    <div className="flex flex-col gap-2">
-      {devices.data?.length === 0 && (
-        <p className="text-sm text-muted-foreground">Nenhum equipamento cadastrado ainda.</p>
-      )}
-      <ul className="flex flex-col gap-1.5">
-        {devices.data?.map((d: any) => (
-          <li key={d.id} className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-sm">
-            <div className="min-w-0 flex-1">
-              <Link to="/equipamentos/$slug" params={{ slug: d.product.slug }} className="block truncate hover:text-lavender">
-                {d.product.name}
-              </Link>
-              <span className="text-xs text-muted-foreground">{d.product.category?.name}</span>
-            </div>
-            {editable && (
-              <button
-                aria-label={`Remover ${d.product.name}`}
-                onClick={() => remove.mutate(d.id)}
-                className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                <X className="size-4" />
-              </button>
-            )}
-          </li>
+    <div className="grid gap-3">
+      {Object.keys(current).length === 0 && <p className="text-sm text-muted-foreground">Nenhuma especificação cadastrada ainda.</p>}
+      <dl className="grid gap-2">
+        {MACHINE_FIELDS.filter(([key]) => current[key]).map(([key, label]) => (
+          <div key={key} className="border-b pb-2 last:border-0">
+            <dt className="text-xs text-muted-foreground">{label}</dt>
+            <dd className="whitespace-pre-wrap break-words text-sm">{current[key]}</dd>
+          </div>
         ))}
-      </ul>
-      {editable && (
-        <div className="mt-1 flex gap-2">
-          <select
-            aria-label="Adicionar equipamento"
-            value={pick}
-            onChange={(e) => setPick(e.target.value)}
-            className="h-9 min-w-0 flex-1 rounded-md border bg-background px-2 text-sm"
-          >
-            <option value="">Adicionar equipamento…</option>
-            {catalog.data?.categories.map((c) => (
-              <optgroup key={c.id} label={c.name}>
-                {catalog.data.products
-                  .filter((p) => p.category_id === c.id && !owned.has(p.id))
-                  .map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-              </optgroup>
-            ))}
-          </select>
-          <Button size="icon" aria-label="Adicionar" disabled={!pick || add.isPending} onClick={() => add.mutate(pick)}>
-            <Plus />
-          </Button>
-        </div>
-      )}
+      </dl>
+      {editable && <Button variant="outline" size="sm" className="justify-self-start" onClick={() => { setValues(current); setEditing(true); }}><Pencil /> Editar máquina</Button>}
     </div>
   );
 }
