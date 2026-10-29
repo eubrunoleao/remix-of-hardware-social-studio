@@ -36,6 +36,8 @@ export function useMyProfile() {
     enabled: !!userId,
     queryFn: async () => {
       if (!userId) return null;
+      const { error: ensureError } = await supabase.rpc("ensure_my_profile");
+      if (ensureError) throw ensureError;
       const { data, error } = await supabase
         .from("profiles")
         .select("id, username, display_name, bio, avatar_path")
