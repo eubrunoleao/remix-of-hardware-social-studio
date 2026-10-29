@@ -153,7 +153,7 @@ export function PostCard({ post, liked, saved }: { post: FeedPost; liked: boolea
   return (
     <article className="rounded-xl border bg-card p-4">
       <header className="flex items-start gap-3">
-        <ProfileAvatar path={post.author?.avatar_path} name={post.author?.display_name ?? "Usuário"} />
+        <ProfileAvatar path={post.author?.avatar_path ?? null} name={post.author?.display_name ?? "Usuário"} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 text-sm">
             <Link to="/u/$username" params={{ username: post.author?.username ?? "" }} className="font-semibold hover:text-lavender">

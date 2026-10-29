@@ -1,9 +1,9 @@
 # Roadmap — SetupSocial
 
 ## Área de perfil
-- [ ] Editar nome de usuário e foto pessoal
-- [ ] Digitar máquina e especificações livremente
-- [ ] Verificar salvamento e apresentação do perfil
+- [x] Editar nome de usuário e foto pessoal
+- [x] Digitar máquina e especificações livremente
+- [x] Verificar salvamento e apresentação do perfil
 
 ## Etapa 1 — Base e visual ✅
 Contas, perfil, catálogo, feed com publicações/curtidas/comentários/salvos.
