@@ -657,24 +657,30 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_path: string | null
           bio: string | null
           created_at: string
           display_name: string
           id: string
+          machine_specs: Json
           username: string
         }
         Insert: {
+          avatar_path?: string | null
           bio?: string | null
           created_at?: string
           display_name: string
           id: string
+          machine_specs?: Json
           username: string
         }
         Update: {
+          avatar_path?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string
           id?: string
+          machine_specs?: Json
           username?: string
         }
         Relationships: []
@@ -811,6 +817,7 @@ export type Database = {
             Returns: string
           }
       delete_my_account: { Args: never; Returns: undefined }
+      ensure_my_profile: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

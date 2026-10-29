@@ -34,7 +34,8 @@ function Settings() {
   async function exportData() {
     setBusy(true);
     try {
-      const uid = userId!;
+      if (!userId) return;
+      const uid = userId;
       const pick = async (table: string, col: string) => {
         const { data, error } = await (supabase.from(table as any) as any).select("*").eq(col, uid).limit(5000);
         if (error) throw error;
@@ -69,9 +70,11 @@ function Settings() {
   }
 
   async function deleteAccount() {
+    if (!userId) return;
     setBusy(true);
+    if (me?.avatar_path) await supabase.storage.from("profile-photos").remove([me.avatar_path]);
     try {
-      await removeMyImages(userId!);
+      await removeMyImages(userId);
     } catch {
       /* imagens órfãs não impedem a exclusão */
     }
@@ -103,7 +106,7 @@ function Settings() {
       <div className="flex flex-col gap-4">
         <section className="rounded-xl border bg-card p-5">
           <h2 className="flex items-center gap-2 font-semibold"><UserRound className="size-4" /> Perfil</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Nome de exibição e bio são editados na sua página de perfil.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Nome de usuário, foto, bio e especificações da máquina.</p>
           {me && (
             <Button asChild variant="outline" size="sm" className="mt-3">
               <Link to="/u/$username" params={{ username: me.username }}>Abrir meu perfil</Link>

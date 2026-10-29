@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 export const PAGE_SIZE = 10;
 
 const POST_SELECT = `id, body, is_review, rating, created_at, author_id,
-  author:profiles!posts_author_id_fkey(username, display_name),
+  author:profiles!posts_author_id_fkey(username, display_name, avatar_path),
   category:categories(slug, name),
   channel:channels(slug, name),
   post_products(product:products(slug, name)),
@@ -31,7 +31,7 @@ export type FeedPost = {
   rating: number | null;
   created_at: string;
   author_id: string;
-  author: { username: string; display_name: string } | null;
+  author: { username: string; display_name: string; avatar_path?: string | null } | null;
   category: { slug: string; name: string } | null;
   channel: { slug: string; name: string } | null;
   products: { slug: string; name: string }[];

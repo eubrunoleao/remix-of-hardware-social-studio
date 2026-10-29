@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useAuth, useMyProfile } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { MachineEditor } from "@/components/MachineEditor";
 
 export function RightPanel() {
@@ -28,9 +29,7 @@ export function RightPanel() {
       {me && (
         <section className="rounded-xl border bg-card p-5">
           <div className="flex items-center gap-3">
-            <div className="grid size-12 place-items-center rounded-full bg-brand font-display text-lg font-bold text-primary-foreground">
-              {me.display_name.slice(0, 1).toUpperCase()}
-            </div>
+            <ProfileAvatar path={me.avatar_path} name={me.display_name} />
             <div className="min-w-0">
               <p className="truncate font-semibold">{me.display_name}</p>
               <Link to="/u/$username" params={{ username: me.username }} className="text-sm text-muted-foreground hover:text-lavender">

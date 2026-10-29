@@ -10,3 +10,7 @@
 <!-- LOVABLE:END -->
 
 - This remix starts with an empty PostgreSQL migration journal and the unchanged blank Drizzle schema placeholder; create future schema changes through the migration tool rather than replaying the source project's copied history.
+
+- Store free-form machine specifications and avatar storage paths on profiles; the catalog remains independent so personal setups do not require catalog entries.
+- Keep profile photos in a private bucket with public signed-read access and owner-scoped writes; shareable profiles need photos without allowing others to change them.
+- Repair missing profiles through an authenticated, idempotent own-profile RPC before reading the account profile; remixed accounts may predate the signup trigger.
