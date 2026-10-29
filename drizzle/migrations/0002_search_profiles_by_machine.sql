@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE FUNCTION public.search_profiles_by_machine(search_term text)
 RETURNS TABLE (
   id uuid,
@@ -9,8 +8,8 @@ RETURNS TABLE (
 )
 LANGUAGE sql
 STABLE
-SECURITY INVOKER
-SET search_path = public
+SECURITY DEFINER
+SET search_path = pg_catalog, public
 AS $$
   WITH term AS (
     SELECT trim(search_term) AS value
@@ -84,5 +83,6 @@ AS $$
   LIMIT 50;
 $$;
 
+REVOKE ALL ON FUNCTION public.search_profiles_by_machine(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.search_profiles_by_machine(text)
 TO anon, authenticated;
