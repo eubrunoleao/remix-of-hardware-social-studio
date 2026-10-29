@@ -61,38 +61,69 @@ function Explore() {
     },
   });
 
-  const people = useQuery({
-    queryKey: ["people", term],
+  // One case-insensitive profile query powers both people and equipment results.
+  // Matching machine_specs client-side avoids depending on the optional RPC being
+  // present in every Lovable preview/backend environment.
+  const profilesSearch = useQuery({
+    queryKey: ["profile-search", term],
     enabled,
     queryFn: async () => {
-      const safe = term.replace(/[%,()]/g, "");
-
       const { data, error } = await supabase
         .from("profiles")
-        .select("username, display_name")
-        .or(
-          `username.ilike.%${safe}%,display_name.ilike.%${safe}%`,
-        )
-        .limit(10);
+        .select("id, username, display_name, avatar_path, machine_specs")
+        .limit(1000);
 
       if (error) throw error;
-      return data ?? [];
+
+      const normalizedTerm = term.toLocaleLowerCase();
+      return (data ?? []).map((profile: any) => {
+        const specs = profile.machine_specs && typeof profile.machine_specs === "object"
+          ? profile.machine_specs
+          : {};
+        const matchedComponents = Object.entries(specs)
+          .filter(([key, value]) => !key.endsWith("_label") && value != null)
+          .filter(([key, value]) =>
+            `${key} ${String(specs[key.replace(/_value$/, "_label")] ?? "")} ${String(value)}`
+              .toLocaleLowerCase()
+              .includes(normalizedTerm)
+          )
+          .map(([key]) => {
+            const labels: Record<string, string> = {
+              processor: "Processador", motherboard: "Placa-mãe",
+              graphics: "Placa de vídeo (GPU)", storage: "Armazenamento (SSD / HD)",
+              memory: "Memória RAM", cooling: "Refrigeração", case: "Gabinete",
+              power: "Fonte de alimentação", fans: "Ventoinhas e kits de fans",
+              monitor: "Monitor", mouse: "Mouse", keyboard: "Teclado",
+              mousepad: "Mousepad / deskpad", microphone: "Microfone",
+              arm: "Braço articulado", headset: "Fone de ouvido / headset",
+              name: "Nome da máquina", system: "Sistema operacional", other: "Outras especificações",
+            };
+            return labels[key] ?? String(specs[key.replace(/_value$/, "_label")] ?? key);
+          });
+        const profileText = `${profile.username} ${profile.display_name}`.toLocaleLowerCase();
+        return {
+          ...profile,
+          matched_components: [...new Set(matchedComponents)],
+          matchesPerson: profileText.includes(normalizedTerm),
+          matchesMachine: matchedComponents.length > 0,
+        };
+      });
     },
   });
 
-  const machines = useQuery({
-    queryKey: ["machine-search", term],
-    enabled,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc(
-        "search_profiles_by_machine",
-        { search_term: term },
-      );
-
-      if (error) throw error;
-      return (data ?? []) as MachineMatch[];
-    },
-  });
+  const people = {
+    ...profilesSearch,
+    data: profilesSearch.data?.filter((profile: any) => profile.matchesPerson) ?? [],
+  };
+  const machines = {
+    ...profilesSearch,
+    data: profilesSearch.data
+      ?.filter((profile: any) => profile.matchesMachine)
+      .map((profile: any) => ({
+        ...profile,
+        matched_components: profile.matched_components,
+      })) ?? [],
+  };
 
   return (
     <AppShell>
@@ -119,13 +150,13 @@ function Explore() {
               Pessoas com esse componente
             </h2>
 
-            {machines.isLoading && (
+            {profilesSearch.isLoading && (
               <p className="text-sm text-muted-foreground">
                 Procurando nas máquinas cadastradas...
               </p>
             )}
 
-            {machines.isError && (
+            {profilesSearch.isError && (
               <div
                 role="alert"
                 className="rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
@@ -135,7 +166,7 @@ function Explore() {
                 </p>
                 <p className="mt-1 break-words">
                   {(() => {
-                    const error = machines.error as unknown;
+                    const error = profilesSearch.error as unknown;
                     if (error instanceof Error) return error.message;
                     if (error && typeof error === "object" && "message" in error) {
                       return String((error as { message: unknown }).message);
@@ -152,7 +183,7 @@ function Explore() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => void machines.refetch()}
+                  onClick={() => void profilesSearch.refetch()}
                   className="mt-2 rounded-md border px-3 py-1.5 text-foreground hover:bg-muted"
                 >
                   Tentar novamente
@@ -160,9 +191,9 @@ function Explore() {
               </div>
             )}
 
-            {machines.data?.length === 0 && !machines.isLoading && (
+            {machines.data?.length === 0 && !profilesSearch.isLoading && (
               <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                Nenhuma máquina cadastrada corresponde a essa pesquisa.
+                Nenhuma máquina ou componente corresponde a essa pesquisa.
               </p>
             )}
 
@@ -215,9 +246,9 @@ function Explore() {
               </p>
             )}
 
-            {people.data?.length === 0 && !people.isLoading && (
+            {people.data?.length === 0 && !profilesSearch.isLoading && (
               <p className="text-sm text-muted-foreground">
-                Nenhum username ou nome corresponde à pesquisa.
+                Nenhum usuário corresponde à pesquisa.
               </p>
             )}
 
