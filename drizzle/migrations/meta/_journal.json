@@ -15,6 +15,20 @@
       "when": 1793276135370,
       "tag": "0001_restore_profile_access",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793277000000,
+      "tag": "0002_search_profiles_by_machine",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793277100000,
+      "tag": "0003_seed_categories",
+      "breakpoints": true
     }
   ]
 }
