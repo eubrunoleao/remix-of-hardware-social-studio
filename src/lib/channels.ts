@@ -179,3 +179,36 @@ export function useCreateCreatorChannel() {
     },
   });
 }
+
+export function useChannelNotifications(channelId?: string, enabled = false) {
+  const { userId } = useAuth();
+  const qc = useQueryClient();
+  const query = useQuery({
+    queryKey: ["channel-notifications", channelId, userId],
+    enabled: !!channelId && !!userId && enabled,
+    queryFn: async () => {
+      const { data, error } = await db.from("channel_notifications")
+        .select("id,source_type,preview,created_at,read_at,actor:profiles!channel_notifications_actor_id_fkey(username,display_name)")
+        .eq("channel_id", channelId).eq("recipient_id", userId)
+        .order("created_at", { ascending: false }).limit(20);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const markRead = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await db.from("channel_notifications").update({ read_at: new Date().toISOString() }).eq("id", id);
+      if (error) throw error;
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["channel-notifications", channelId] }),
+  });
+  useEffect(() => {
+    if (!channelId || !userId || !enabled) return;
+    const realtime = supabase.channel("channel-notifications-" + channelId + "-" + userId)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "channel_notifications", filter: "channel_id=eq." + channelId }, () => {
+        qc.invalidateQueries({ queryKey: ["channel-notifications", channelId] });
+      }).subscribe();
+    return () => { void supabase.removeChannel(realtime); };
+  }, [channelId, userId, enabled, qc]);
+  return { ...query, markRead };
+}
