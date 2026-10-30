@@ -784,18 +784,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      search_profiles_by_machine: {
-  Args: {
-    search_term: string;
-  };
-  Returns: {
-    id: string;
-    username: string;
-    display_name: string;
-    avatar_path: string | null;
-    matched_components: string[];
-  }[];
-};
       claim_first_admin: { Args: never; Returns: boolean }
       create_channel: {
         Args: { _description: string; _name: string; _slug: string }
