@@ -146,7 +146,7 @@ export function useManageChannelMember(channelId: string) {
   });
 }
 
-export function useToggleChannelNotifications(channelId: string, enabled: boolean) {
+export function useToggleChannelNotifications(channelId: string) {
   const qc = useQueryClient();
   const { userId } = useAuth();
   return useMutation({
