@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import {
   useChannelWorkspace, useChannelMembership, useChannelMembers, useJoinChannel,
   useLeaveChannel, useUpdateChannel, useChannelMessages, useSendChannelMessage,
-  useManageChannelMember, useToggleChannelNotifications, useChannelNotifications,
+  useManageChannelMember, useToggleChannelNotifications, useChannelNotifications, useDeleteChannelMessage,
 } from "@/lib/channels";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -47,7 +47,8 @@ function ChannelPage() {
   const update = useUpdateChannel();
   const send = useSendChannelMessage(c?.id ?? "");
   const manage = useManageChannelMember(c?.id ?? "");
-  const notifications = useToggleChannelNotifications(c?.id ?? "", !!membership.data?.notifications_enabled);
+  const notifications = useToggleChannelNotifications(c?.id ?? "");
+  const deleteMessage = useDeleteChannelMessage(c?.id ?? "");
   const [body, setBody] = useState("");
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
@@ -133,7 +134,7 @@ function ChannelPage() {
       {active && <section className="mb-4 rounded-xl border bg-card p-4">
         <h2 className="mb-3 font-semibold">Mensagens do canal</h2>
         <div className="mb-3 flex max-h-80 flex-col gap-2 overflow-y-auto">
-          {messages.data?.length ? messages.data.map((m:any)=><div key={m.id} className="rounded-lg bg-muted/50 p-3"><p className="mb-1 text-xs font-semibold">{m.profile?.display_name || m.profile?.username || "Membro"} · {new Date(m.created_at).toLocaleString("pt-BR")}</p><p className="whitespace-pre-wrap text-sm">{m.body}</p></div>) : <p className="text-sm text-muted-foreground">Nenhuma mensagem ainda.</p>}
+          {messages.data?.length ? messages.data.map((m:any)=><div key={m.id} className="rounded-lg bg-muted/50 p-3"><p className="mb-1 text-xs font-semibold">{m.profile?.display_name || m.profile?.username || "Membro"} · {new Date(m.created_at).toLocaleString("pt-BR")}</p><div className="flex items-start justify-between gap-2"><p className="whitespace-pre-wrap text-sm">{m.body}</p>{(isModerator || m.author_id===userId) && <button type="button" title="Excluir mensagem" onClick={()=>deleteMessage.mutate(m.id,{onSuccess:()=>toast.success("Mensagem removida"),onError:(e)=>toast.error(e.message)})} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-4"/></button>}</div></div>) : <p className="text-sm text-muted-foreground">Nenhuma mensagem ainda.</p>}
         </div>
         {canWrite ? <form className="flex gap-2" onSubmit={(e)=>{e.preventDefault();if(!body.trim())return;send.mutate(body.trim(),{onSuccess:()=>setBody(""),onError:(err)=>toast.error(err.message)});}}><Textarea value={body} onChange={(e)=>setBody(e.target.value)} maxLength={4000} placeholder="Escreva uma mensagem para o canal…" className="min-h-10 flex-1"/><Button type="submit" size="icon" disabled={send.isPending || !body.trim()} aria-label="Enviar mensagem"><Send className="size-4"/></Button></form> : <p className="text-xs text-muted-foreground">Somente administradores podem enviar mensagens neste canal.</p>}
       </section>}
