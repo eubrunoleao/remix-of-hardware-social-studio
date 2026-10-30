@@ -14,14 +14,14 @@ import { Textarea } from "@/components/ui/textarea";
 
 const MAX = 2000;
 
-export function PostComposer() {
+export function PostComposer({ channelId: presetChannelId }: { channelId?: string } = {}) {
   const { userId, ready } = useAuth();
   const qc = useQueryClient();
   const catalog = useCatalog();
   const channels = useChannels();
   const [body, setBody] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [channelId, setChannelId] = useState("");
+  const [channelId, setChannelId] = useState(presetChannelId ?? "");
   const [productIds, setProductIds] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
