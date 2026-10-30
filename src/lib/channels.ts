@@ -159,3 +159,24 @@ export function useToggleChannelNotifications(channelId: string, enabled: boolea
     onSettled: () => qc.invalidateQueries({ queryKey: ["channel-membership", channelId] }),
   });
 }
+
+export function useCreateCreatorChannel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { slug: string; name: string; description: string; visibility: string; category: string; join_approval: boolean }) => {
+      const { data, error } = await db.rpc("create_channel", {
+        _slug: input.slug, _name: input.name, _description: input.description,
+      });
+      if (error) throw error;
+      const { error: updateError } = await db.from("channels").update({
+        visibility: input.visibility, category: input.category, join_approval: input.join_approval,
+      }).eq("id", data);
+      if (updateError) throw updateError;
+      return data as string;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["channels"] });
+      qc.invalidateQueries({ queryKey: ["channel-follows"] });
+    },
+  });
+}
