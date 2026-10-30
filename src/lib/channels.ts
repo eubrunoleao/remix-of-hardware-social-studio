@@ -152,8 +152,7 @@ export function useToggleChannelNotifications(channelId: string, enabled: boolea
   return useMutation({
     mutationFn: async (next: boolean) => {
       if (!userId) throw new Error("Faça login primeiro");
-      const { error } = await db.from("channel_members").update({ notifications_enabled: next })
-        .eq("channel_id", channelId).eq("user_id", userId);
+      const { error } = await db.rpc("set_channel_notifications", { _channel_id: channelId, _enabled: next });
       if (error) throw error;
     },
     onSettled: () => qc.invalidateQueries({ queryKey: ["channel-membership", channelId] }),
