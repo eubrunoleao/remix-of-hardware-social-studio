@@ -145,7 +145,7 @@ function Thread() {
               if (!text.trim() || send.isPending) return;
               send.mutate(text.trim(), {
                 onSuccess: () => setText(""),
-                onError: (err) => toast.error(err.message.includes("limit") ? "Limite de mensagens do pedido atingido — aguarde o aceite" : "Não foi possível enviar"),
+                onError: (err) => toast.error(err.message.includes("limit") ? "Limite de mensagens do pedido atingido — aguarde o aceite" : `Falha ao enviar: ${err.message}`),
               });
             }}
           >
