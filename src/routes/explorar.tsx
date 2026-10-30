@@ -220,7 +220,7 @@ function Explore() {
                     </p>
 
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {person.matched_components.map((component) => (
+                      {person.matched_components.map((component: string) => (
                         <span
                           key={component}
                           className="rounded-full border px-2 py-1 text-xs"
