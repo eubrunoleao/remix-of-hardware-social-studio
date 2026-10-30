@@ -3,7 +3,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Bell, BellOff, Lock, Globe, Settings, Users, Send, Shield, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { FeedList } from "@/components/FeedList";\nimport { PostComposer } from "@/components/PostComposer";
+import { FeedList } from "@/components/FeedList";
+import { PostComposer } from "@/components/PostComposer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
@@ -41,7 +42,8 @@ function ChannelPage() {
   const isStaff = isModerator;
   const active = status === "active";
   const members = useChannelMembers(c?.id, isStaff && active);
-  const messages = useChannelMessages(c?.id, active);\n  const notificationsFeed = useChannelNotifications(c?.id, active);
+  const messages = useChannelMessages(c?.id, active);
+  const notificationsFeed = useChannelNotifications(c?.id, active);
   const join = useJoinChannel();
   const leave = useLeaveChannel();
   const update = useUpdateChannel();
@@ -56,7 +58,9 @@ function ChannelPage() {
   const [category, setCategory] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [allowPosts, setAllowPosts] = useState(false);
-  const [approval, setApproval] = useState(false);\n  const [avatarUrl, setAvatarUrl] = useState("");\n  const [coverUrl, setCoverUrl] = useState("");
+  const [approval, setApproval] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [coverUrl, setCoverUrl] = useState("");
 
   if (channel.isLoading) return <AppShell><div className="h-40 animate-pulse rounded-xl bg-card" /></AppShell>;
   if (!c) return <AppShell><div className="rounded-xl border bg-card p-6 text-center">Canal não encontrado ou você não tem acesso. <Link to="/canais" className="text-lavender hover:underline">Ver canais</Link></div></AppShell>;
@@ -64,7 +68,8 @@ function ChannelPage() {
   const canWrite = active && (["owner","admin","publisher"].includes(role ?? "") || (c.allow_member_posts && ["member","editor","moderator"].includes(role ?? "")));
   const beginEdit = () => {
     setName(c.name); setDescription(c.description ?? ""); setCategory(c.category ?? "Geral");
-    setVisibility(c.visibility); setAllowPosts(c.allow_member_posts); setApproval(c.join_approval);\n    setAvatarUrl(c.avatar_url ?? ""); setCoverUrl(c.cover_url ?? "");
+    setVisibility(c.visibility); setAllowPosts(c.allow_member_posts); setApproval(c.join_approval);
+    setAvatarUrl(c.avatar_url ?? ""); setCoverUrl(c.cover_url ?? "");
     setEditing(true);
   };
   const saveSettings = () => update.mutate({ id: c.id, changes: {
@@ -104,7 +109,9 @@ function ChannelPage() {
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm">Nome<input value={name} onChange={(e)=>setName(e.target.value)} className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>
           <label className="text-sm">Categoria<input value={category} onChange={(e)=>setCategory(e.target.value)} className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>
-          <label className="text-sm">URL da imagem do canal<input value={avatarUrl} onChange={(e)=>setAvatarUrl(e.target.value)} placeholder="https://..." className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>\n          <label className="text-sm">URL da capa<input value={coverUrl} onChange={(e)=>setCoverUrl(e.target.value)} placeholder="https://..." className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>\n          <label className="text-sm sm:col-span-2">Descrição<textarea value={description} onChange={(e)=>setDescription(e.target.value)} className="mt-1 min-h-16 w-full rounded-md border bg-background p-2"/></label>
+          <label className="text-sm">URL da imagem do canal<input value={avatarUrl} onChange={(e)=>setAvatarUrl(e.target.value)} placeholder="https://..." className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>
+          <label className="text-sm">URL da capa<input value={coverUrl} onChange={(e)=>setCoverUrl(e.target.value)} placeholder="https://..." className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>
+          <label className="text-sm sm:col-span-2">Descrição<textarea value={description} onChange={(e)=>setDescription(e.target.value)} className="mt-1 min-h-16 w-full rounded-md border bg-background p-2"/></label>
           <label className="text-sm">Visibilidade<select value={visibility} onChange={(e)=>setVisibility(e.target.value)} className="mt-1 h-9 w-full rounded-md border bg-background px-2"><option value="public">Público</option><option value="private">Privado</option><option value="exclusive">Exclusivo</option></select></label>
           <div className="flex flex-col gap-2 text-sm">
             <label className="flex items-center gap-2"><input type="checkbox" checked={approval} onChange={(e)=>setApproval(e.target.checked)}/> Aprovar entradas manualmente</label>
@@ -137,7 +144,8 @@ function ChannelPage() {
         {canWrite ? <form className="flex gap-2" onSubmit={(e)=>{e.preventDefault();if(!body.trim())return;send.mutate(body.trim(),{onSuccess:()=>setBody(""),onError:(err)=>toast.error(err.message)});}}><Textarea value={body} onChange={(e)=>setBody(e.target.value)} maxLength={4000} placeholder="Escreva uma mensagem para o canal…" className="min-h-10 flex-1"/><Button type="submit" size="icon" disabled={send.isPending || !body.trim()} aria-label="Enviar mensagem"><Send className="size-4"/></Button></form> : <p className="text-xs text-muted-foreground">Você não tem permissão para enviar mensagens neste canal.</p>}
       </section>}
 
-      {canWrite && <div className="mb-4"><PostComposer channelId={c.id} /></div>}\n      {active && <div className="mb-3 flex items-center gap-2"><h2 className="font-semibold">Publicações</h2><span className="text-xs text-muted-foreground">do canal</span></div>}
+      {canWrite && <div className="mb-4"><PostComposer channelId={c.id} /></div>}
+      {active && <div className="mb-3 flex items-center gap-2"><h2 className="font-semibold">Publicações</h2><span className="text-xs text-muted-foreground">do canal</span></div>}
       {active && <FeedList filter={{ kind: "channel", channelId: c.id }} empty="Nenhuma publicação neste canal ainda." />}
       {!active && status !== "pending" && status !== "banned" && <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">Entre neste canal para acessar suas publicações e mensagens.</div>}
     </AppShell>
