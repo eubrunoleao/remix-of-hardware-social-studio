@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import {
   useChannelWorkspace, useChannelMembership, useChannelMembers, useJoinChannel,
   useLeaveChannel, useUpdateChannel, useChannelMessages, useSendChannelMessage,
-  useManageChannelMember, useToggleChannelNotifications,
+  useManageChannelMember, useToggleChannelNotifications, useChannelNotifications,
 } from "@/lib/channels";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -41,7 +41,7 @@ function ChannelPage() {
   const isStaff = isModerator;
   const active = status === "active";
   const members = useChannelMembers(c?.id, isStaff && active);
-  const messages = useChannelMessages(c?.id, active);
+  const messages = useChannelMessages(c?.id, active);\n  const notificationsFeed = useChannelNotifications(c?.id, active);
   const join = useJoinChannel();
   const leave = useLeaveChannel();
   const update = useUpdateChannel();
