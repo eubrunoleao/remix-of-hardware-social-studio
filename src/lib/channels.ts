@@ -212,3 +212,14 @@ export function useChannelNotifications(channelId?: string, enabled = false) {
   }, [channelId, userId, enabled, qc]);
   return { ...query, markRead };
 }
+
+export function useDeleteChannelMessage(channelId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (messageId: string) => {
+      const { error } = await db.from("channel_messages").delete().eq("id", messageId).eq("channel_id", channelId);
+      if (error) throw error;
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["channel-messages", channelId] }),
+  });
+}
