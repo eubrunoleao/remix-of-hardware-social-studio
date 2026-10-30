@@ -56,7 +56,7 @@ function ChannelPage() {
   const [visibility, setVisibility] = useState("public");
   const [allowPosts, setAllowPosts] = useState(false);
   const [allowComments, setAllowComments] = useState(false);
-  const [approval, setApproval] = useState(false);
+  const [approval, setApproval] = useState(false);\n  const [avatarUrl, setAvatarUrl] = useState("");\n  const [coverUrl, setCoverUrl] = useState("");
 
   if (channel.isLoading) return <AppShell><div className="h-40 animate-pulse rounded-xl bg-card" /></AppShell>;
   if (!c) return <AppShell><div className="rounded-xl border bg-card p-6 text-center">Canal não encontrado ou você não tem acesso. <Link to="/canais" className="text-lavender hover:underline">Ver canais</Link></div></AppShell>;
@@ -64,12 +64,12 @@ function ChannelPage() {
   const canWrite = active && (["owner","admin","publisher"].includes(role ?? "") || (c.allow_member_posts && ["member","editor","moderator"].includes(role ?? "")));
   const beginEdit = () => {
     setName(c.name); setDescription(c.description ?? ""); setCategory(c.category ?? "Geral");
-    setVisibility(c.visibility); setAllowPosts(c.allow_member_posts); setAllowComments(c.allow_comments); setApproval(c.join_approval);
+    setVisibility(c.visibility); setAllowPosts(c.allow_member_posts); setAllowComments(c.allow_comments); setApproval(c.join_approval);\n    setAvatarUrl(c.avatar_url ?? ""); setCoverUrl(c.cover_url ?? "");
     setEditing(true);
   };
   const saveSettings = () => update.mutate({ id: c.id, changes: {
     name: name.trim(), description: description.trim() || null, category, visibility,
-    allow_member_posts: allowPosts, allow_comments: allowComments, join_approval: approval,
+    allow_member_posts: allowPosts, allow_comments: allowComments, join_approval: approval, avatar_url: avatarUrl.trim() || null, cover_url: coverUrl.trim() || null,
   } }, { onSuccess: () => { toast.success("Canal atualizado"); setEditing(false); }, onError: (e) => toast.error(e.message) });
 
   return (
@@ -104,7 +104,7 @@ function ChannelPage() {
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm">Nome<input value={name} onChange={(e)=>setName(e.target.value)} className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>
           <label className="text-sm">Categoria<input value={category} onChange={(e)=>setCategory(e.target.value)} className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>
-          <label className="text-sm sm:col-span-2">Descrição<textarea value={description} onChange={(e)=>setDescription(e.target.value)} className="mt-1 min-h-16 w-full rounded-md border bg-background p-2"/></label>
+          <label className="text-sm">URL da imagem do canal<input value={avatarUrl} onChange={(e)=>setAvatarUrl(e.target.value)} placeholder="https://..." className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>\n          <label className="text-sm">URL da capa<input value={coverUrl} onChange={(e)=>setCoverUrl(e.target.value)} placeholder="https://..." className="mt-1 h-9 w-full rounded-md border bg-background px-3"/></label>\n          <label className="text-sm sm:col-span-2">Descrição<textarea value={description} onChange={(e)=>setDescription(e.target.value)} className="mt-1 min-h-16 w-full rounded-md border bg-background p-2"/></label>
           <label className="text-sm">Visibilidade<select value={visibility} onChange={(e)=>setVisibility(e.target.value)} className="mt-1 h-9 w-full rounded-md border bg-background px-2"><option value="public">Público</option><option value="private">Privado</option><option value="exclusive">Exclusivo</option></select></label>
           <div className="flex flex-col gap-2 text-sm">
             <label className="flex items-center gap-2"><input type="checkbox" checked={approval} onChange={(e)=>setApproval(e.target.checked)}/> Aprovar entradas manualmente</label>
@@ -122,10 +122,10 @@ function ChannelPage() {
         <div className="flex flex-col gap-2">
           {members.data?.map((m:any)=>{const profile=m.profile ?? {}; return <div key={m.user_id} className="flex flex-wrap items-center gap-2 rounded-lg border p-2">
             <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{profile.display_name || profile.username || m.user_id.slice(0,8)}</p><p className="text-xs text-muted-foreground">{m.role} · {m.status}</p></div>
-            {m.status==="pending" && isAdmin && <Button size="xs" onClick={()=>manage.mutate({userId:m.user_id,action:"approve"},{onSuccess:()=>toast.success("Membro aprovado"),onError:(e)=>toast.error(e.message)})}>Aprovar</Button>}
+            {m.status==="pending" && isAdmin && <Button size="sm" onClick={()=>manage.mutate({userId:m.user_id,action:"approve"},{onSuccess:()=>toast.success("Membro aprovado"),onError:(e)=>toast.error(e.message)})}>Aprovar</Button>}
             {m.role!=="owner" && m.user_id!==userId && <><select aria-label="Alterar função" defaultValue={m.role} disabled={!isAdmin} onChange={(e)=>manage.mutate({userId:m.user_id,action:"role",role:e.target.value},{onSuccess:()=>toast.success("Permissão atualizada"),onError:(err)=>toast.error(err.message)})} className="h-8 rounded border bg-background px-1 text-xs"><option value="member">Membro</option><option value="publisher">Publicador</option><option value="editor">Editor</option><option value="moderator">Moderador</option><option value="analyst">Analista</option>{isOwner && <option value="admin">Administrador</option>}</select>
-            <Button size="xs" variant="outline" onClick={()=>manage.mutate({userId:m.user_id,action:"remove"},{onSuccess:()=>toast.success("Membro removido"),onError:(e)=>toast.error(e.message)})}>Remover</Button>
-            <Button size="xs" variant="destructive" onClick={()=>manage.mutate({userId:m.user_id,action:"ban"},{onSuccess:()=>toast.success("Membro bloqueado"),onError:(e)=>toast.error(e.message)})}>Bloquear</Button></>}
+            <Button size="sm" variant="outline" onClick={()=>manage.mutate({userId:m.user_id,action:"remove"},{onSuccess:()=>toast.success("Membro removido"),onError:(e)=>toast.error(e.message)})}>Remover</Button>
+            <Button size="sm" variant="destructive" onClick={()=>manage.mutate({userId:m.user_id,action:"ban"},{onSuccess:()=>toast.success("Membro bloqueado"),onError:(e)=>toast.error(e.message)})}>Bloquear</Button></>}
           </div>})}
         </div>
       </section>}
