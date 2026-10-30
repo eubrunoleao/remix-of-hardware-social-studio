@@ -16,13 +16,17 @@ create table if not exists public.user_crypto_devices (
 create index if not exists user_crypto_devices_user_active_idx
   on public.user_crypto_devices(user_id) where revoked_at is null;
 alter table public.user_crypto_devices enable row level security;
+drop policy if exists "crypto_devices_read_authenticated" on public.user_crypto_devices;
 create policy "crypto_devices_read_authenticated"
   on public.user_crypto_devices for select to authenticated using (revoked_at is null);
+drop policy if exists "crypto_devices_insert_own" on public.user_crypto_devices;
 create policy "crypto_devices_insert_own"
   on public.user_crypto_devices for insert to authenticated with check (user_id = (select auth.uid()));
+drop policy if exists "crypto_devices_update_own" on public.user_crypto_devices;
 create policy "crypto_devices_update_own"
   on public.user_crypto_devices for update to authenticated
   using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+drop policy if exists "crypto_devices_delete_own" on public.user_crypto_devices;
 create policy "crypto_devices_delete_own"
   on public.user_crypto_devices for delete to authenticated using (user_id = (select auth.uid()));
 
@@ -40,6 +44,7 @@ values ('private-chat-media', 'private-chat-media', false, 104857600, array['app
 on conflict (id) do update set public = false, file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
+drop policy if exists "chat_media_read_participants" on storage.objects;
 create policy "chat_media_read_participants" on storage.objects
 for select to authenticated using (
   bucket_id = 'private-chat-media'
@@ -57,6 +62,7 @@ for select to authenticated using (
     ))
   )
 );
+drop policy if exists "chat_media_upload_own" on storage.objects;
 create policy "chat_media_upload_own" on storage.objects
 for insert to authenticated with check (
   bucket_id = 'private-chat-media'
@@ -75,6 +81,7 @@ for insert to authenticated with check (
     ))
   )
 );
+drop policy if exists "chat_media_delete_own" on storage.objects;
 create policy "chat_media_delete_own" on storage.objects
 for delete to authenticated using (
   bucket_id = 'private-chat-media' and (storage.foldername(name))[3] = (select auth.uid())::text
