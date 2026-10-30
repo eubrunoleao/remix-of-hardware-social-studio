@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Bell, BellOff, Lock, Globe, Settings, Users, Send, Shield, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { FeedList } from "@/components/FeedList";
+import { FeedList } from "@/components/FeedList";\nimport { PostComposer } from "@/components/PostComposer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
@@ -138,7 +138,7 @@ function ChannelPage() {
         {canWrite ? <form className="flex gap-2" onSubmit={(e)=>{e.preventDefault();if(!body.trim())return;send.mutate(body.trim(),{onSuccess:()=>setBody(""),onError:(err)=>toast.error(err.message)});}}><Textarea value={body} onChange={(e)=>setBody(e.target.value)} maxLength={4000} placeholder="Escreva uma mensagem para o canal…" className="min-h-10 flex-1"/><Button type="submit" size="icon" disabled={send.isPending || !body.trim()} aria-label="Enviar mensagem"><Send className="size-4"/></Button></form> : <p className="text-xs text-muted-foreground">Somente administradores podem enviar mensagens neste canal.</p>}
       </section>}
 
-      {active && <div className="mb-3 flex items-center gap-2"><h2 className="font-semibold">Publicações</h2><span className="text-xs text-muted-foreground">do canal</span></div>}
+      {canWrite && <div className="mb-4"><PostComposer channelId={c.id} /></div>}\n      {active && <div className="mb-3 flex items-center gap-2"><h2 className="font-semibold">Publicações</h2><span className="text-xs text-muted-foreground">do canal</span></div>}
       {active && <FeedList filter={{ kind: "channel", channelId: c.id }} empty="Nenhuma publicação neste canal ainda." />}
       {!active && status !== "pending" && status !== "banned" && <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">Entre neste canal para acessar suas publicações e mensagens.</div>}
     </AppShell>
