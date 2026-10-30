@@ -38,7 +38,7 @@ function ChannelPage() {
   const isOwner = role === "owner";
   const isAdmin = role === "admin" || isOwner;
   const isModerator = isAdmin || role === "moderator";
-  const isStaff = ["owner","admin","editor","moderator","publisher","analyst"].includes(role ?? "");
+  const isStaff = isModerator;
   const active = status === "active";
   const members = useChannelMembers(c?.id, isStaff && active);
   const messages = useChannelMessages(c?.id, active);
