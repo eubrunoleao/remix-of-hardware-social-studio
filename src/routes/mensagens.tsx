@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { MessageSquare } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -28,9 +28,13 @@ function timeAgo(iso: string) {
 }
 
 function Messages() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const isThread = pathname !== "/mensagens" && pathname.startsWith("/mensagens/");
   const { userId, ready } = useAuth();
   const convs = useConversations();
   const respond = useRespondConversation();
+
+  if (isThread) return <Outlet />;
 
   if (!ready)
     return (
