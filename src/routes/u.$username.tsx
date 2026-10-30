@@ -156,14 +156,17 @@ function ProfileBody({ p, isMe, userId, editing, setEditing, name, setName, bio,
                       size="sm"
                       variant="outline"
                       disabled={startConv.isPending}
-                      onClick={() =>
-                        startConv.mutate(p.id, {
-                          onSuccess: (id) => navigate({ to: "/mensagens/$id", params: { id } }),
-                          onError: () => toast.error("Não foi possível iniciar a conversa"),
-                        })
-                      }
+                      onClick={async () => {
+                        try {
+                          const id = await startConv.mutateAsync(p.id);
+                          if (!id) throw new Error("A conversa não retornou um identificador válido");
+                          await navigate({ to: "/mensagens/$id", params: { id } });
+                        } catch (error) {
+                          toast.error(error instanceof Error ? error.message : "Não foi possível abrir a conversa");
+                        }
+                      }}
                     >
-                      <MessageSquare /> Mensagem
+                      <MessageSquare /> {startConv.isPending ? "Abrindo..." : "Mensagem"}
                     </Button>
                     <Button
                       size="sm"
