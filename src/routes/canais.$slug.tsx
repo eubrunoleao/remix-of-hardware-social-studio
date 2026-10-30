@@ -56,7 +56,6 @@ function ChannelPage() {
   const [category, setCategory] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [allowPosts, setAllowPosts] = useState(false);
-  const [allowComments, setAllowComments] = useState(false);
   const [approval, setApproval] = useState(false);\n  const [avatarUrl, setAvatarUrl] = useState("");\n  const [coverUrl, setCoverUrl] = useState("");
 
   if (channel.isLoading) return <AppShell><div className="h-40 animate-pulse rounded-xl bg-card" /></AppShell>;
@@ -65,12 +64,12 @@ function ChannelPage() {
   const canWrite = active && (["owner","admin","publisher"].includes(role ?? "") || (c.allow_member_posts && ["member","editor","moderator"].includes(role ?? "")));
   const beginEdit = () => {
     setName(c.name); setDescription(c.description ?? ""); setCategory(c.category ?? "Geral");
-    setVisibility(c.visibility); setAllowPosts(c.allow_member_posts); setAllowComments(c.allow_comments); setApproval(c.join_approval);\n    setAvatarUrl(c.avatar_url ?? ""); setCoverUrl(c.cover_url ?? "");
+    setVisibility(c.visibility); setAllowPosts(c.allow_member_posts); setApproval(c.join_approval);\n    setAvatarUrl(c.avatar_url ?? ""); setCoverUrl(c.cover_url ?? "");
     setEditing(true);
   };
   const saveSettings = () => update.mutate({ id: c.id, changes: {
     name: name.trim(), description: description.trim() || null, category, visibility,
-    allow_member_posts: allowPosts, allow_comments: allowComments, join_approval: approval, avatar_url: avatarUrl.trim() || null, cover_url: coverUrl.trim() || null,
+    allow_member_posts: allowPosts, join_approval: approval, avatar_url: avatarUrl.trim() || null, cover_url: coverUrl.trim() || null,
   } }, { onSuccess: () => { toast.success("Canal atualizado"); setEditing(false); }, onError: (e) => toast.error(e.message) });
 
   return (
@@ -110,7 +109,6 @@ function ChannelPage() {
           <div className="flex flex-col gap-2 text-sm">
             <label className="flex items-center gap-2"><input type="checkbox" checked={approval} onChange={(e)=>setApproval(e.target.checked)}/> Aprovar entradas manualmente</label>
             <label className="flex items-center gap-2"><input type="checkbox" checked={allowPosts} onChange={(e)=>setAllowPosts(e.target.checked)}/> Permitir publicações de membros</label>
-            <label className="flex items-center gap-2"><input type="checkbox" checked={allowComments} onChange={(e)=>setAllowComments(e.target.checked)}/> Permitir comentários</label>
           </div>
         </div>
         <div className="mt-3 flex gap-2"><Button size="sm" disabled={update.isPending || !name.trim()} onClick={saveSettings}>Salvar alterações</Button><Button size="sm" variant="ghost" onClick={()=>setEditing(false)}>Cancelar</Button></div>
@@ -136,7 +134,7 @@ function ChannelPage() {
         <div className="mb-3 flex max-h-80 flex-col gap-2 overflow-y-auto">
           {messages.data?.length ? messages.data.map((m:any)=><div key={m.id} className="rounded-lg bg-muted/50 p-3"><p className="mb-1 text-xs font-semibold">{m.profile?.display_name || m.profile?.username || "Membro"} · {new Date(m.created_at).toLocaleString("pt-BR")}</p><div className="flex items-start justify-between gap-2"><p className="whitespace-pre-wrap text-sm">{m.body}</p>{(isModerator || m.author_id===userId) && <button type="button" title="Excluir mensagem" onClick={()=>deleteMessage.mutate(m.id,{onSuccess:()=>toast.success("Mensagem removida"),onError:(e)=>toast.error(e.message)})} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-4"/></button>}</div></div>) : <p className="text-sm text-muted-foreground">Nenhuma mensagem ainda.</p>}
         </div>
-        {canWrite ? <form className="flex gap-2" onSubmit={(e)=>{e.preventDefault();if(!body.trim())return;send.mutate(body.trim(),{onSuccess:()=>setBody(""),onError:(err)=>toast.error(err.message)});}}><Textarea value={body} onChange={(e)=>setBody(e.target.value)} maxLength={4000} placeholder="Escreva uma mensagem para o canal…" className="min-h-10 flex-1"/><Button type="submit" size="icon" disabled={send.isPending || !body.trim()} aria-label="Enviar mensagem"><Send className="size-4"/></Button></form> : <p className="text-xs text-muted-foreground">Somente administradores podem enviar mensagens neste canal.</p>}
+        {canWrite ? <form className="flex gap-2" onSubmit={(e)=>{e.preventDefault();if(!body.trim())return;send.mutate(body.trim(),{onSuccess:()=>setBody(""),onError:(err)=>toast.error(err.message)});}}><Textarea value={body} onChange={(e)=>setBody(e.target.value)} maxLength={4000} placeholder="Escreva uma mensagem para o canal…" className="min-h-10 flex-1"/><Button type="submit" size="icon" disabled={send.isPending || !body.trim()} aria-label="Enviar mensagem"><Send className="size-4"/></Button></form> : <p className="text-xs text-muted-foreground">Você não tem permissão para enviar mensagens neste canal.</p>}
       </section>}
 
       {canWrite && <div className="mb-4"><PostComposer channelId={c.id} /></div>}\n      {active && <div className="mb-3 flex items-center gap-2"><h2 className="font-semibold">Publicações</h2><span className="text-xs text-muted-foreground">do canal</span></div>}
