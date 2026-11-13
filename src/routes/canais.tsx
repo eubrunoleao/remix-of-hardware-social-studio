@@ -93,15 +93,20 @@ function Channels() {
         {channels.data?.map((c) => {
           const following = !!mine.data?.has(c.id);
           return (
-            <div key={c.id} className="flex items-center gap-3 rounded-xl border bg-card p-4">
-              <div className="grid size-11 shrink-0 place-items-center rounded-lg bg-brand text-primary-foreground"><Users className="size-5" /></div>
-              <div className="min-w-0 flex-1">
-                <Link to="/canais/$slug" params={{ slug: c.slug }} className="font-semibold hover:text-lavender">{c.name}</Link>
-                {c.description && <p className="truncate text-sm text-muted-foreground">{c.description}</p>}
-                <p className="text-xs text-muted-foreground">{c.followers} seguidores</p>
-              </div>
+            <div key={c.id} className="flex items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:border-primary/40">
+              <Link to="/canais/$slug" params={{ slug: c.slug }} aria-label={`Abrir canal ${c.name}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <div className="grid size-11 shrink-0 place-items-center rounded-lg bg-brand text-primary-foreground"><Users className="size-5" /></div>
+                <div className="min-w-0 flex-1">
+                  <span className="font-semibold hover:text-lavender">{c.name}</span>
+                  {c.description && <p className="truncate text-sm text-muted-foreground">{c.description}</p>}
+                  <p className="text-xs text-muted-foreground">{c.followers} seguidores · Abrir canal</p>
+                </div>
+              </Link>
               {userId && <Button size="sm" variant={following ? "secondary" : "default"} disabled={toggle.isPending}
-                onClick={() => toggle.mutate({ channelId: c.id, on: !following })}>{following ? "Seguindo" : "Seguir"}</Button>}
+                onClick={() => toggle.mutate({ channelId: c.id, on: !following }, {
+                  onError: (err) => toast.error(err.message || "Não foi possível atualizar sua participação no canal"),
+                  onSuccess: () => toast.success(following ? "Você saiu do canal" : "Você entrou no canal"),
+                })}>{following ? "Seguindo" : "Seguir"}</Button>}
             </div>
           );
         })}
