@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Bell, BellOff, Lock, Globe, Settings, Users, Send, Shield, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -52,6 +52,11 @@ function ChannelPage() {
   const notifications = useToggleChannelNotifications(c?.id ?? "");
   const deleteMessage = useDeleteChannelMessage(c?.id ?? "");
   const [body, setBody] = useState("");
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.data?.length]);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -65,7 +70,7 @@ function ChannelPage() {
   if (channel.isLoading) return <AppShell><div className="h-40 animate-pulse rounded-xl bg-card" /></AppShell>;
   if (!c) return <AppShell><div className="rounded-xl border bg-card p-6 text-center">Canal não encontrado ou você não tem acesso. <Link to="/canais" className="text-lavender hover:underline">Ver canais</Link></div></AppShell>;
 
-  const canWrite = active && (["owner","admin","publisher"].includes(role ?? "") || (c.allow_member_posts && ["member","editor","moderator"].includes(role ?? "")));
+  const canWrite = active;
   const beginEdit = () => {
     setName(c.name); setDescription(c.description ?? ""); setCategory(c.category ?? "Geral");
     setVisibility(c.visibility); setAllowPosts(c.allow_member_posts); setApproval(c.join_approval);
@@ -136,12 +141,29 @@ function ChannelPage() {
         </div>
       </section>}
 
-      {active && <section className="mb-4 rounded-xl border bg-card p-4">
-        <h2 className="mb-3 font-semibold">Mensagens do canal</h2>
-        <div className="mb-3 flex max-h-80 flex-col gap-2 overflow-y-auto">
-          {messages.data?.length ? messages.data.map((m:any)=><div key={m.id} className="rounded-lg bg-muted/50 p-3"><p className="mb-1 text-xs font-semibold">{m.profile?.display_name || m.profile?.username || "Membro"} · {new Date(m.created_at).toLocaleString("pt-BR")}</p><div className="flex items-start justify-between gap-2"><p className="whitespace-pre-wrap text-sm">{m.body}</p>{(isModerator || m.author_id===userId) && <button type="button" title="Excluir mensagem" onClick={()=>deleteMessage.mutate(m.id,{onSuccess:()=>toast.success("Mensagem removida"),onError:(e)=>toast.error(e.message)})} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-4"/></button>}</div></div>) : <p className="text-sm text-muted-foreground">Nenhuma mensagem ainda.</p>}
+      {active && <section className="mb-4 flex min-h-[60vh] flex-col overflow-hidden rounded-xl border bg-card">
+        <header className="flex items-center gap-3 border-b p-4">
+          <div className="grid size-9 place-items-center rounded-full bg-brand text-sm font-bold text-primary-foreground"><Users className="size-4"/></div>
+          <div className="min-w-0 flex-1"><h2 className="font-semibold">Conversa do canal</h2><p className="text-xs text-muted-foreground">{c.followers} participantes · mensagens em grupo</p></div>
+        </header>
+        <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
+          {messages.isLoading && <p className="py-6 text-center text-sm text-muted-foreground">Carregando mensagens…</p>}
+          {messages.data?.length ? messages.data.map((m:any)=>{
+            const mine = m.author_id === userId;
+            return <div key={m.id} className={`flex w-full ${mine ? "justify-end" : "justify-start"}`}>
+              <div className={`group max-w-[85%] rounded-2xl px-3.5 py-2 text-sm ${mine ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
+                {!mine && <p className="mb-1 text-xs font-semibold opacity-80">{m.profile?.display_name || m.profile?.username || "Membro"}</p>}
+                <div className="flex items-start gap-2"><p className="whitespace-pre-wrap break-words">{m.body}</p>{(isModerator || mine) && <button type="button" title="Excluir mensagem" aria-label="Excluir mensagem" onClick={()=>deleteMessage.mutate(m.id,{onSuccess:()=>toast.success("Mensagem removida"),onError:(e)=>toast.error(e.message)})} className="shrink-0 opacity-60 hover:opacity-100"><Trash2 className="size-3.5"/></button>}</div>
+                <p className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</p>
+              </div>
+            </div>;
+          }) : !messages.isLoading && <p className="py-10 text-center text-sm text-muted-foreground">Nenhuma mensagem ainda. Comece a conversa!</p>}
+          <div ref={chatBottomRef}/>
         </div>
-        {canWrite ? <form className="flex gap-2" onSubmit={(e)=>{e.preventDefault();if(!body.trim())return;send.mutate(body.trim(),{onSuccess:()=>setBody(""),onError:(err)=>toast.error(err.message)});}}><Textarea value={body} onChange={(e)=>setBody(e.target.value)} maxLength={4000} placeholder="Escreva uma mensagem para o canal…" className="min-h-10 flex-1"/><Button type="submit" size="icon" disabled={send.isPending || !body.trim()} aria-label="Enviar mensagem"><Send className="size-4"/></Button></form> : <p className="text-xs text-muted-foreground">Você não tem permissão para enviar mensagens neste canal.</p>}
+        {canWrite ? <form className="flex items-end gap-2 border-t p-4" onSubmit={(e)=>{e.preventDefault();if(!body.trim() || send.isPending)return;send.mutate(body.trim(),{onSuccess:()=>setBody(""),onError:(err)=>toast.error(`Falha ao enviar: ${err.message}`)});}}>
+          <Textarea value={body} onChange={(e)=>setBody(e.target.value)} maxLength={4000} placeholder="Escreva uma mensagem…" className="min-h-10 flex-1"/>
+          <Button type="submit" size="icon" disabled={send.isPending || !body.trim()} aria-label="Enviar mensagem"><Send className="size-4"/></Button>
+        </form> : <p className="border-t p-4 text-xs text-muted-foreground">Entre no canal para participar da conversa.</p>}
       </section>}
 
       {canWrite && <div className="mb-4"><PostComposer channelId={c.id} /></div>}
