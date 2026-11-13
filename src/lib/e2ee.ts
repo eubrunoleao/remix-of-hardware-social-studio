@@ -32,7 +32,7 @@ export type LocalDeviceKeys = {
   privateKey: CryptoKey;
 };
 
-function bytesToBase64(bytes: Uint8Array): string {
+function bytesToBase64(bytes: Uint8Array<ArrayBuffer>): string {
   let binary = "";
   for (let i = 0; i < bytes.length; i += 0x8000) {
     binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
@@ -40,7 +40,7 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-function base64ToBytes(value: string): Uint8Array {
+function base64ToBytes(value: string): Uint8Array<ArrayBuffer> {
   const binary = atob(value);
   return Uint8Array.from(binary, (char) => char.charCodeAt(0));
 }
@@ -110,7 +110,7 @@ export async function registerCurrentDevice(label = "Navegador"): Promise<string
 async function deriveWrappingKey(
   privateKey: CryptoKey,
   publicKey: CryptoKey,
-  salt: Uint8Array,
+  salt: Uint8Array<ArrayBuffer>,
 ): Promise<CryptoKey> {
   const bits = await crypto.subtle.deriveBits({ name: "ECDH", public: publicKey }, privateKey, 256);
   const material = await crypto.subtle.importKey("raw", bits, "HKDF", false, ["deriveKey"]);
@@ -124,7 +124,7 @@ async function deriveWrappingKey(
 }
 
 export async function createKeyEnvelope(
-  rawConversationKey: Uint8Array,
+  rawConversationKey: Uint8Array<ArrayBuffer>,
   recipientPublicJwk: JsonWebKey,
 ): Promise<KeyEnvelope> {
   const ephemeral = await crypto.subtle.generateKey(
@@ -147,7 +147,7 @@ export async function createKeyEnvelope(
   };
 }
 
-export async function openKeyEnvelope(envelope: KeyEnvelope): Promise<Uint8Array> {
+export async function openKeyEnvelope(envelope: KeyEnvelope): Promise<Uint8Array<ArrayBuffer>> {
   const local = await getOrCreateDeviceKeys();
   const ephemeralPublic = await crypto.subtle.importKey(
     "jwk", envelope.ephemeralPublicKey, { name: "ECDH", namedCurve: "P-256" }, false, [],
@@ -163,14 +163,14 @@ export async function openKeyEnvelope(envelope: KeyEnvelope): Promise<Uint8Array
   return new Uint8Array(raw);
 }
 
-export async function encryptText(plaintext: string, rawKey: Uint8Array): Promise<CipherPayload> {
+export async function encryptText(plaintext: string, rawKey: Uint8Array<ArrayBuffer>): Promise<CipherPayload> {
   const key = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["encrypt"]);
   const nonce = crypto.getRandomValues(new Uint8Array(12));
   const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, enc.encode(plaintext));
   return { version: 1, algorithm: "AES-256-GCM", nonce: bytesToBase64(nonce), ciphertext: bytesToBase64(new Uint8Array(ciphertext)) };
 }
 
-export async function decryptText(payload: CipherPayload, rawKey: Uint8Array): Promise<string> {
+export async function decryptText(payload: CipherPayload, rawKey: Uint8Array<ArrayBuffer>): Promise<string> {
   const key = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
   const plaintext = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv: base64ToBytes(payload.nonce) }, key, base64ToBytes(payload.ciphertext),
@@ -178,14 +178,14 @@ export async function decryptText(payload: CipherPayload, rawKey: Uint8Array): P
   return dec.decode(plaintext);
 }
 
-export async function encryptFile(file: File, rawKey: Uint8Array): Promise<{ blob: Blob; nonce: string; mimeType: string; fileName: string }> {
+export async function encryptFile(file: File, rawKey: Uint8Array<ArrayBuffer>): Promise<{ blob: Blob; nonce: string; mimeType: string; fileName: string }> {
   const key = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["encrypt"]);
   const nonce = crypto.getRandomValues(new Uint8Array(12));
   const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, await file.arrayBuffer());
   return { blob: new Blob([ciphertext], { type: "application/octet-stream" }), nonce: bytesToBase64(nonce), mimeType: file.type || "application/octet-stream", fileName: file.name };
 }
 
-export async function decryptFile(blob: Blob, nonceBase64: string, mimeType: string, rawKey: Uint8Array): Promise<Blob> {
+export async function decryptFile(blob: Blob, nonceBase64: string, mimeType: string, rawKey: Uint8Array<ArrayBuffer>): Promise<Blob> {
   const key = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
   const plaintext = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv: base64ToBytes(nonceBase64) }, key, await blob.arrayBuffer(),
@@ -193,6 +193,6 @@ export async function decryptFile(blob: Blob, nonceBase64: string, mimeType: str
   return new Blob([plaintext], { type: mimeType });
 }
 
-export function generateConversationKey(): Uint8Array {
+export function generateConversationKey(): Uint8Array<ArrayBuffer> {
   return crypto.getRandomValues(new Uint8Array(32));
 }
